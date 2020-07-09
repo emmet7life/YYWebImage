@@ -11,6 +11,9 @@
 #import "UIView+YYAdd.h"
 #import <ImageIO/ImageIO.h>
 #import <WebP/demux.h>
+#import "YYWebImageManager.h"
+#import "YYImageCache.h"
+#import "YYDiskCache.h"
 
 @interface YYImageExample()
 @property (nonatomic, strong) NSMutableArray *titles;
@@ -27,6 +30,9 @@
     [self addCell:@"Animated Image" class:@"YYImageDisplayExample"];
     [self addCell:@"Progressive Image" class:@"YYImageProgressiveExample"];
     [self addCell:@"Web Image" class:@"YYWebImageExample"];
+    [self addCell:@"Pro Usage" class:@"YYWebImageProExample"];
+    [self addCell:@"Clean Memory Cache" class:@"CleanMemoryCache"];
+    [self addCell:@"Clean Disk Cache" class:@"CleanDiskCache"];
     //[self addCell:@"Benchmark" class:@"YYImageBenchmark"];
     [self.tableView reloadData];
 }
@@ -53,11 +59,17 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *className = self.classNames[indexPath.row];
-    Class class = NSClassFromString(className);
-    if (class) {
-        UIViewController *ctrl = class.new;
-        ctrl.title = _titles[indexPath.row];
-        [self.navigationController pushViewController:ctrl animated:YES];
+    if ([className isEqual:@"CleanMemoryCache"]) {
+        [[[YYWebImageManager sharedManager] cache] removeAllImagesWithType:YYImageCacheTypeMemory];
+    } else if ([className isEqual:@"CleanDiskCache"]) {
+        [[[YYWebImageManager sharedManager] cache] removeAllImagesWithType:YYImageCacheTypeDisk];
+    } else {
+        Class class = NSClassFromString(className);
+        if (class) {
+            UIViewController *ctrl = class.new;
+            ctrl.title = _titles[indexPath.row];
+            [self.navigationController pushViewController:ctrl animated:YES];
+        }
     }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

@@ -44,6 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong, readonly) YYImageCache      *cache;    ///< The image cache.
 @property (nonatomic, strong, readonly)           NSString          *cacheKey; ///< The image cache key.
 @property (nonatomic, readonly)                   YYWebImageOptions options;   ///< The operation's option.
+@property (nullable, nonatomic, strong, readonly) id<YYWebImageCacheSerializer> cacheSerializer;    ///< The cache serializer
+@property (nullable, nonatomic, strong, readonly) id<YYWebImageProcessor> processor;                ///< The processor
+@property (nullable, nonatomic, strong, readonly) id<YYWebImageModifier> modifier;                  ///< The modifier
+@property (nullable, nonatomic, strong, readonly) NSMutableDictionary<NSString *, id> *info;        ///< The dict info
 
 /**
  Whether the URL connection should consult the credential storage for authenticating 
@@ -83,8 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithRequest:(NSURLRequest *)request
                         options:(YYWebImageOptions)options
+                           info:(nullable NSDictionary<NSString *, id> *)info
                           cache:(nullable YYImageCache *)cache
                        cacheKey:(nullable NSString *)cacheKey
+                cacheSerializer:(nullable id)cacheSerializer
+                      processor:(nullable id)processor
+                       modifier:(nullable id)modifier
                        progress:(nullable YYWebImageProgressBlock)progress
                       transform:(nullable YYWebImageTransformBlock)transform
                      completion:(nullable YYWebImageCompletionBlock)completion NS_DESIGNATED_INITIALIZER;

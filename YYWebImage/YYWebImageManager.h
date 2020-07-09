@@ -10,6 +10,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "YYWebImageCacheSerializer.h"
+#import "YYWebImageProcessor.h"
+#import "YYWebImageModifier.h"
 
 #if __has_include(<YYWebImage/YYWebImage.h>)
 #import <YYWebImage/YYImageCache.h>
@@ -182,6 +185,12 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
 - (instancetype)initWithCache:(nullable YYImageCache *)cache
                         queue:(nullable NSOperationQueue *)queue NS_DESIGNATED_INITIALIZER;
 
+- (instancetype)initWithCache:(nullable YYImageCache *)cache
+              cacheSerializer:(nullable id)cacheSerializer
+                    processor:(nullable id)processor
+                     modifier:(nullable id)modifier
+                        queue:(nullable NSOperationQueue *)queue NS_DESIGNATED_INITIALIZER;
+
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
 + (instancetype)new UNAVAILABLE_ATTRIBUTE;
 
@@ -197,9 +206,15 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
  */
 - (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
                                               options:(YYWebImageOptions)options
+                                                 info:(nullable NSDictionary<NSString *, id> *)info
                                              progress:(nullable YYWebImageProgressBlock)progress
                                             transform:(nullable YYWebImageTransformBlock)transform
                                            completion:(nullable YYWebImageCompletionBlock)completion;
+
+@property (nullable, nonatomic, strong) id<YYWebImageCacheSerializer> cacheSerializer;
+@property (nullable, nonatomic, strong) id<YYWebImageProcessor> processor;
+@property (nullable, nonatomic, strong) id<YYWebImageModifier> modifier;
+@property (nullable, nonatomic, strong) NSDictionary<NSString *, id> *info;
 
 /**
  The image cache used by image operation. 

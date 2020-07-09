@@ -153,6 +153,8 @@ typedef NS_OPTIONS(NSUInteger, YYImageCacheType) {
  */
 - (void)removeImageForKey:(NSString *)key withType:(YYImageCacheType)type;
 
+- (void)removeAllImagesWithType:(YYImageCacheType)type;
+
 /**
  Returns a Boolean value that indicates whether a given key is in cache.
  If the image is not in memory, this method may blocks the calling thread until 
@@ -173,6 +175,15 @@ typedef NS_OPTIONS(NSUInteger, YYImageCacheType) {
  @return Whether the image is in cache.
  */
 - (BOOL)containsImageForKey:(NSString *)key withType:(YYImageCacheType)type;
+
+/**
+ Returns the value associated with a given key.
+ If type is YYImageCacheTypeDisk, this method may blocks the calling thread until file read finished.
+ 
+ @param key A string identifying the value. If nil, just return nil.
+ @return The value associated with key, or nil if no value is associated with key.
+ */
+- (nullable id<NSCoding>)objectForKey:(NSString *)key withType:(YYImageCacheType)type;
 
 /**
  Returns the image associated with a given key.

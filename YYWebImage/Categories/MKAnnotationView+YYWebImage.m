@@ -173,7 +173,7 @@ static int _YYWebImageSetterKey;
                 });
             };
             
-            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options manager:manager progress:_progress transform:transform completion:_completion];
+            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:nil manager:manager progress:_progress transform:transform completion:_completion];
             weakSetter = setter;
         });
     });

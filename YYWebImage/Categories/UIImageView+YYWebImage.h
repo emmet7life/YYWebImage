@@ -62,6 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                placeholder:(nullable UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info
                 completion:(nullable YYWebImageCompletionBlock)completion;
 
 /**
@@ -77,6 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                placeholder:(nullable UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info
                   progress:(nullable YYWebImageProgressBlock)progress
                  transform:(nullable YYWebImageTransformBlock)transform
                 completion:(nullable YYWebImageCompletionBlock)completion;
@@ -95,6 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                placeholder:(nullable UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info
                    manager:(nullable YYWebImageManager *)manager
                   progress:(nullable YYWebImageProgressBlock)progress
                  transform:(nullable YYWebImageTransformBlock)transform

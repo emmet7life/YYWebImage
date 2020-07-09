@@ -85,10 +85,15 @@
     self.progressLayer.hidden = YES;
     self.progressLayer.strokeEnd = 0;
     [CATransaction commit];
+    
+    CGFloat scale = 0.2;//UIScreen.mainScreen.scale;
+    CGSize targetSize = CGSizeZero;// CGSizeMake(_webImageView.size.width * scale, _webImageView.size.height * scale);
+    NSDictionary<NSString *, id> *info = @{kYYWebImageOptionTargetSize: @(targetSize)};
 
     [_webImageView yy_setImageWithURL:url
                           placeholder:nil
                           options:YYWebImageOptionProgressiveBlur | YYWebImageOptionShowNetworkActivity | YYWebImageOptionSetImageWithFadeAnimation
+                             info: info
                           progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                               if (expectedSize > 0 && receivedSize > 0) {
                                   CGFloat progress = (CGFloat)receivedSize / expectedSize;
@@ -134,41 +139,44 @@
          */
         
         // progressive jpeg
-        @"https://raw.githubusercontent.com/ibireme/YYWebImage/master/Demo/YYWebImageDemo/mew_progressive.jpg",
+//        @"https://raw.githubusercontent.com/ibireme/YYWebImage/master/Demo/YYWebImageDemo/mew_progressive.jpg",
         
         // animated gif: http://cinemagraphs.com/
-        @"http://i.imgur.com/uoBwCLj.gif",
-        @"http://i.imgur.com/8KHKhxI.gif",
-        @"http://i.imgur.com/WXJaqof.gif",
+//        @"http://i.imgur.com/uoBwCLj.gif",
+//        @"http://i.imgur.com/8KHKhxI.gif",
+//        @"http://i.imgur.com/WXJaqof.gif",
         
         // animated gif: https://dribbble.com/markpear
-        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1780193/dots18.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1809343/dots17.1.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1845612/dots22.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1820014/big-hero-6.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1819006/dots11.0.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1799885/dots21.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1780193/dots18.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1809343/dots17.1.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1845612/dots22.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1820014/big-hero-6.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1819006/dots11.0.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/345826/screenshots/1799885/dots21.gif",
         
         // animaged gif: https://dribbble.com/jonadinges
-        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/2025999/batman-beyond-the-rain.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/1855350/r_nin.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/1963497/way-back-home.gif",
-        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/1913272/depressed-slurp-cycle.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/2025999/batman-beyond-the-rain.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/1855350/r_nin.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/1963497/way-back-home.gif",
+//        @"https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/1913272/depressed-slurp-cycle.gif",
         
         // jpg: https://dribbble.com/snootyfox
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/2047158/beerhenge.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/2016158/avalanche.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1839353/pilsner.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1833469/porter.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1521183/farmers.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1391053/tents.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1399501/imperial_beer.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1488711/fishin.jpg",
-        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1466318/getaway.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/2047158/beerhenge.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/2016158/avalanche.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1839353/pilsner.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1833469/porter.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1521183/farmers.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1391053/tents.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1399501/imperial_beer.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1488711/fishin.jpg",
+//        @"https://d13yacurqjgara.cloudfront.net/users/26059/screenshots/1466318/getaway.jpg",
         
         // animated webp and apng: http://littlesvr.ca/apng/gif_apng_webp.html
-        @"http://littlesvr.ca/apng/images/BladeRunner.png",
-        @"http://littlesvr.ca/apng/images/Contact.webp",
+//        @"http://littlesvr.ca/apng/images/BladeRunner.png",
+//        @"http://littlesvr.ca/apng/images/Contact.webp",
+        
+        // jpg
+        @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1594293055688&di=6c790e2f4d899d2f9b68f242d5c29987&imgtype=0&src=http%3A%2F%2Ft8.baidu.com%2Fit%2Fu%3D2247852322%2C986532796%26fm%3D79%26app%3D86%26f%3DJPEG%3Fw%3D1280%26h%3D853",
     ];
     
     _imageLinks = links;
@@ -201,7 +209,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _imageLinks.count * 4;
+    return _imageLinks.count * 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

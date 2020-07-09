@@ -48,11 +48,18 @@ static UIApplication *_YYSharedApplication() {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         YYImageCache *cache = [YYImageCache sharedCache];
+        id<YYWebImageCacheSerializer> cacheSerializer = [[YYWebImageDefaultCacheSerializer alloc] init];
+        id<YYWebImageProcessor> processor = [[YYWebImageDefaultProcessor alloc] init];
+        id<YYWebImageModifier> modifier = [[YYWebImageDefaultModifier alloc] init];
         NSOperationQueue *queue = [NSOperationQueue new];
         if ([queue respondsToSelector:@selector(setQualityOfService:)]) {
             queue.qualityOfService = NSQualityOfServiceBackground;
         }
-        manager = [[self alloc] initWithCache:cache queue:queue];
+        manager = [[self alloc] initWithCache:cache
+                              cacheSerializer:cacheSerializer
+                                    processor:processor
+                                     modifier:modifier
+                                        queue:queue];
     });
     return manager;
 }
@@ -67,6 +74,30 @@ static UIApplication *_YYSharedApplication() {
     if (!self) return nil;
     _cache = cache;
     _queue = queue;
+    _cacheSerializer = nil;
+    _processor = nil;
+    _modifier = nil;
+    _timeout = 15.0;
+    if (YYImageWebPAvailable()) {
+        _headers = @{ @"Accept" : @"image/webp,image/*;q=0.8" };
+    } else {
+        _headers = @{ @"Accept" : @"image/*;q=0.8" };
+    }
+    return self;
+}
+
+- (instancetype)initWithCache:(YYImageCache *)cache
+              cacheSerializer:(id)cacheSerializer
+                    processor:(id)processor
+                     modifier:(id)modifier
+                        queue:(NSOperationQueue *)queue {
+    self = [super init];
+    if (!self) return nil;
+    _cache = cache;
+    _queue = queue;
+    _cacheSerializer = cacheSerializer;
+    _processor = processor;
+    _modifier = modifier;
     _timeout = 15.0;
     if (YYImageWebPAvailable()) {
         _headers = @{ @"Accept" : @"image/webp,image/*;q=0.8" };
@@ -78,6 +109,7 @@ static UIApplication *_YYSharedApplication() {
 
 - (YYWebImageOperation *)requestImageWithURL:(NSURL *)url
                                      options:(YYWebImageOptions)options
+                                        info:(NSDictionary<NSString *, id> *)info
                                     progress:(YYWebImageProgressBlock)progress
                                    transform:(YYWebImageTransformBlock)transform
                                   completion:(YYWebImageCompletionBlock)completion {
@@ -92,8 +124,12 @@ static UIApplication *_YYSharedApplication() {
     
     YYWebImageOperation *operation = [[YYWebImageOperation alloc] initWithRequest:request
                                                                           options:options
+                                                                             info:info
                                                                             cache:_cache
                                                                          cacheKey:[self cacheKeyForURL:url]
+                                                                  cacheSerializer:_cacheSerializer
+                                                                        processor:_processor
+                                                                         modifier:_modifier
                                                                          progress:progress
                                                                         transform:transform ? transform : _sharedTransformBlock
                                                                        completion:completion];

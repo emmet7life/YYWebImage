@@ -48,6 +48,7 @@ extern const NSTimeInterval _YYWebImageProgressiveFadeTime;
 - (int32_t)setOperationWithSentinel:(int32_t)sentinel
                                 url:(nullable NSURL *)imageURL
                             options:(YYWebImageOptions)options
+                               info:(nullable NSDictionary<NSString *, id> *)info
                             manager:(YYWebImageManager *)manager
                            progress:(nullable YYWebImageProgressBlock)progress
                           transform:(nullable YYWebImageTransformBlock)transform

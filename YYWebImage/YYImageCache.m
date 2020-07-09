@@ -168,6 +168,11 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
     if (type & YYImageCacheTypeDisk) [_diskCache removeObjectForKey:key];
 }
 
+- (void)removeAllImagesWithType:(YYImageCacheType)type {
+    if (type & YYImageCacheTypeMemory) [_memoryCache removeAllObjects];
+    if (type & YYImageCacheTypeDisk) [_diskCache removeAllObjects];
+}
+
 - (BOOL)containsImageForKey:(NSString *)key {
     return [self containsImageForKey:key withType:YYImageCacheTypeAll];
 }
@@ -180,6 +185,18 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
         if ([_diskCache containsObjectForKey:key]) return YES;
     }
     return NO;
+}
+
+- (id<NSCoding>)objectForKey:(NSString *)key withType:(YYImageCacheType)type {
+    if (type & YYImageCacheTypeMemory) {
+        UIImage *image = (id)[_memoryCache objectForKey:key];
+        return image;
+    }
+    if (type & YYImageCacheTypeDisk) {
+        NSData *data = (id)[_diskCache objectForKey:key];
+        return data;
+    }
+    return nil;
 }
 
 - (UIImage *)getImageForKey:(NSString *)key {
