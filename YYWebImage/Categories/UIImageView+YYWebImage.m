@@ -135,11 +135,22 @@ static int _YYWebImageHighlightedSetterKey;
         if (manager.cache &&
             !(options & YYWebImageOptionUseNSURLCache) &&
             !(options & YYWebImageOptionRefreshImageCache)) {
-            NSString *cacheKey = [manager cacheKeyForURL:imageURL];
+            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
+            NSString *cacheKey = originalCacheKey;
+            
+            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
             if (info) {
-                cacheKey = [info yy_cacheKeyForMemoryCache:cacheKey ignoreBeProcessed:YES];
+                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey
+                                       processorIdentifier:manager.processor.identifier
+                                         ignoreBeProcessed:YES];
             }
             imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            
+            // 2. if failed. then try key type: URL
+            if (!imageFromMemory) {
+                cacheKey = [info yy_cacheKeyForDiskCache:originalCacheKey];
+                imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            }
         }
         if (imageFromMemory) {
             if (!(options & YYWebImageOptionAvoidSetImage)) {

@@ -7,6 +7,7 @@
 //
 
 #import "NSDictionary+YYWebImage.h"
+#import <UIKit/UIKit.h>
 
 @implementation NSDictionary (YYWebImage)
 
@@ -24,6 +25,15 @@
     return targetSize;
 }
 
+- (CGFloat)yy_targetScale {
+    NSNumber *num = self[kYYWebImageOptionTargetScale];
+    CGFloat targetScale = num.floatValue;
+    if (targetScale <= 0) {
+        targetScale = 1.0;
+    }
+    return targetScale;
+}
+
 - (Boolean)yy_shouldDecode {
     Boolean shouldDecode = NO;
     NSNumber *num = self[kYYWebImageOptionShouldDecode];
@@ -38,13 +48,19 @@
     return beProcessed;
 }
 
-- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey ignoreBeProcessed:(Boolean)isIgnoreBeProcessed {
+- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey
+                    processorIdentifier:(nullable NSString *)identifier
+                      ignoreBeProcessed:(Boolean)isIgnoreBeProcessed {
     NSString *tmp = cacheKey;
     if (isIgnoreBeProcessed || self.yy_beProcessed) {
         CGSize targetSize = self.yy_targetSize;
-        if (!CGSizeEqualToSize(CGSizeZero, targetSize)) {
-            tmp = [tmp stringByAppendingFormat:@"_%ld", (NSInteger)targetSize.width];
-            tmp = [tmp stringByAppendingFormat:@"_%ld", (NSInteger)targetSize.height];
+        CGFloat targetScale = self.yy_targetScale;
+        if (targetSize.width > 0 && targetSize.height > 0) {
+            tmp = [tmp stringByAppendingFormat:@"_%ld", (NSInteger)(targetSize.width * targetScale)];
+            tmp = [tmp stringByAppendingFormat:@"_x_%ld", (NSInteger)(targetSize.height * targetScale)];
+            if (identifier) {
+                tmp = [tmp stringByAppendingFormat:@"_%@", identifier];
+            }
         }
     }
     return tmp;

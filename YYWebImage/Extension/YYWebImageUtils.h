@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 transform a data to image, the image will be resized to targetSize.
 Attension: Only support for PNG/JPG/JPG2000? image format type.
  
-@param targetSize   The image target size.
+@param targetSize   The image target size. unit point is pixel.
 @param data   The Image Original Data.
 @param imageType   The Image type. If type is unknown, use data to detect.
 @param shouldDecode   The Image should be decode or not.

@@ -10,5 +10,6 @@
 
 NSString *const kYYWebImageOptionImageType     = @"yy_option_kImageType";
 NSString *const kYYWebImageOptionTargetSize    = @"yy_option_kTargetSize";
+NSString *const kYYWebImageOptionTargetScale   = @"yy_option_kTargetScale";
 NSString *const kYYWebImageOptionShouldDecode  = @"yy_option_kShouldDecode";
 NSString *const kYYWebImageOptionBeProcessed   = @"yy_option_kBeProcessed";
