@@ -243,7 +243,7 @@ static void URLInBlackListAdd(NSURL *url) {
 
 - (instancetype)init {
     @throw [NSException exceptionWithName:@"YYWebImageOperation init error" reason:@"YYWebImageOperation must be initialized with a request. Use the designated initializer to init." userInfo:nil];
-    return [self initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@""]] options:0 info:nil cache:nil cacheKey:nil cacheSerializer:nil processor:nil progress:nil transform:nil completion:nil];
+    return [self initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@""]] options:0 info:nil cache:nil cacheKey:nil processor:nil progress:nil transform:nil completion:nil];
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request
@@ -251,7 +251,6 @@ static void URLInBlackListAdd(NSURL *url) {
                            info:(NSDictionary<NSString *, id> *)info
                           cache:(YYImageCache *)cache
                        cacheKey:(NSString *)cacheKey
-                cacheSerializer:(nullable id)cacheSerializer
                       processor:(nullable id)processor
                        progress:(YYWebImageProgressBlock)progress
                       transform:(YYWebImageTransformBlock)transform
@@ -263,7 +262,6 @@ static void URLInBlackListAdd(NSURL *url) {
     _options = options;
     _cache = cache;
     _cacheKey = cacheKey ? cacheKey : request.URL.absoluteString;
-    _cacheSerializer = cacheSerializer;
     _processor = processor;
     _shouldUseCredentialStorage = YES;
     _progress = progress;

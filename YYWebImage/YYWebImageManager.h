@@ -10,7 +10,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "YYWebImageCacheSerializer.h"
 #import "YYWebImageProcessor.h"
 
 #if __has_include(<YYWebImage/YYWebImage.h>)
@@ -185,7 +184,6 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
                         queue:(nullable NSOperationQueue *)queue NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithCache:(nullable YYImageCache *)cache
-              cacheSerializer:(nullable id)cacheSerializer
                     processor:(nullable id)processor
                         queue:(nullable NSOperationQueue *)queue NS_DESIGNATED_INITIALIZER;
 
@@ -209,7 +207,6 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
                                             transform:(nullable YYWebImageTransformBlock)transform
                                            completion:(nullable YYWebImageCompletionBlock)completion;
 
-@property (nullable, nonatomic, strong) id<YYWebImageCacheSerializer> cacheSerializer;
 @property (nullable, nonatomic, strong) id<YYWebImageProcessor> processor;
 @property (nullable, nonatomic, strong) NSDictionary<NSString *, id> *info;
 

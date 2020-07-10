@@ -48,14 +48,12 @@ static UIApplication *_YYSharedApplication() {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         YYImageCache *cache = [YYImageCache sharedCache];
-        id<YYWebImageCacheSerializer> cacheSerializer = [[YYWebImageDefaultCacheSerializer alloc] init];
         id<YYWebImageProcessor> processor = [[YYWebImageDefaultProcessor alloc] init];
         NSOperationQueue *queue = [NSOperationQueue new];
         if ([queue respondsToSelector:@selector(setQualityOfService:)]) {
             queue.qualityOfService = NSQualityOfServiceBackground;
         }
         manager = [[self alloc] initWithCache:cache
-                              cacheSerializer:cacheSerializer
                                     processor:processor
                                         queue:queue];
     });
@@ -72,7 +70,6 @@ static UIApplication *_YYSharedApplication() {
     if (!self) return nil;
     _cache = cache;
     _queue = queue;
-    _cacheSerializer = nil;
     _processor = nil;
     _timeout = 15.0;
     if (YYImageWebPAvailable()) {
@@ -84,14 +81,12 @@ static UIApplication *_YYSharedApplication() {
 }
 
 - (instancetype)initWithCache:(YYImageCache *)cache
-              cacheSerializer:(id)cacheSerializer
                     processor:(id)processor
                         queue:(NSOperationQueue *)queue {
     self = [super init];
     if (!self) return nil;
     _cache = cache;
     _queue = queue;
-    _cacheSerializer = cacheSerializer;
     _processor = processor;
     _timeout = 15.0;
     if (YYImageWebPAvailable()) {
@@ -122,7 +117,6 @@ static UIApplication *_YYSharedApplication() {
                                                                              info:info
                                                                             cache:_cache
                                                                          cacheKey:[self cacheKeyForURL:url]
-                                                                  cacheSerializer:_cacheSerializer
                                                                         processor:_processor
                                                                          progress:progress
                                                                         transform:transform ? transform : _sharedTransformBlock

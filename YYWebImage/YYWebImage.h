@@ -65,7 +65,5 @@ FOUNDATION_EXPORT const unsigned char YYWebImageVersionString[];
 
 #import "YYWebImageConstMacro.h"
 #import "YYWebImageUtils.h"
-#import "YYWebImageCacheSerializer.h"
 #import "YYWebImageProcessor.h"
 #import "NSDictionary+YYWebImage.h"
-

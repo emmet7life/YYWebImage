@@ -44,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong, readonly) YYImageCache      *cache;    ///< The image cache.
 @property (nonatomic, strong, readonly)           NSString          *cacheKey; ///< The image cache key.
 @property (nonatomic, readonly)                   YYWebImageOptions options;   ///< The operation's option.
-@property (nullable, nonatomic, strong, readonly) id<YYWebImageCacheSerializer> cacheSerializer;    ///< The cache serializer
 @property (nullable, nonatomic, strong, readonly) id<YYWebImageProcessor> processor;                ///< The processor
 @property (nullable, nonatomic, strong, readonly) NSMutableDictionary<NSString *, id> *info;        ///< The dict info
 
@@ -89,7 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
                            info:(nullable NSDictionary<NSString *, id> *)info
                           cache:(nullable YYImageCache *)cache
                        cacheKey:(nullable NSString *)cacheKey
-                cacheSerializer:(nullable id)cacheSerializer
                       processor:(nullable id)processor
                        progress:(nullable YYWebImageProgressBlock)progress
                       transform:(nullable YYWebImageTransformBlock)transform
