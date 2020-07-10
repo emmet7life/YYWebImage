@@ -50,7 +50,6 @@ static UIApplication *_YYSharedApplication() {
         YYImageCache *cache = [YYImageCache sharedCache];
         id<YYWebImageCacheSerializer> cacheSerializer = [[YYWebImageDefaultCacheSerializer alloc] init];
         id<YYWebImageProcessor> processor = [[YYWebImageDefaultProcessor alloc] init];
-        id<YYWebImageModifier> modifier = [[YYWebImageDefaultModifier alloc] init];
         NSOperationQueue *queue = [NSOperationQueue new];
         if ([queue respondsToSelector:@selector(setQualityOfService:)]) {
             queue.qualityOfService = NSQualityOfServiceBackground;
@@ -58,7 +57,6 @@ static UIApplication *_YYSharedApplication() {
         manager = [[self alloc] initWithCache:cache
                               cacheSerializer:cacheSerializer
                                     processor:processor
-                                     modifier:modifier
                                         queue:queue];
     });
     return manager;
@@ -69,14 +67,13 @@ static UIApplication *_YYSharedApplication() {
     return [self initWithCache:nil queue:nil];
 }
 
-- (instancetype)initWithCache:(YYImageCache *)cache queue:(NSOperationQueue *)queue{
+- (instancetype)initWithCache:(YYImageCache *)cache queue:(NSOperationQueue *)queue {
     self = [super init];
     if (!self) return nil;
     _cache = cache;
     _queue = queue;
     _cacheSerializer = nil;
     _processor = nil;
-    _modifier = nil;
     _timeout = 15.0;
     if (YYImageWebPAvailable()) {
         _headers = @{ @"Accept" : @"image/webp,image/*;q=0.8" };
@@ -89,7 +86,6 @@ static UIApplication *_YYSharedApplication() {
 - (instancetype)initWithCache:(YYImageCache *)cache
               cacheSerializer:(id)cacheSerializer
                     processor:(id)processor
-                     modifier:(id)modifier
                         queue:(NSOperationQueue *)queue {
     self = [super init];
     if (!self) return nil;
@@ -97,7 +93,6 @@ static UIApplication *_YYSharedApplication() {
     _queue = queue;
     _cacheSerializer = cacheSerializer;
     _processor = processor;
-    _modifier = modifier;
     _timeout = 15.0;
     if (YYImageWebPAvailable()) {
         _headers = @{ @"Accept" : @"image/webp,image/*;q=0.8" };
@@ -129,7 +124,6 @@ static UIApplication *_YYSharedApplication() {
                                                                          cacheKey:[self cacheKeyForURL:url]
                                                                   cacheSerializer:_cacheSerializer
                                                                         processor:_processor
-                                                                         modifier:_modifier
                                                                          progress:progress
                                                                         transform:transform ? transform : _sharedTransformBlock
                                                                        completion:completion];

@@ -142,11 +142,9 @@ static int _YYWebImageHighlightedSetterKey;
             NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
             NSString *cacheKey = originalCacheKey;
             
-            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
+            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
             if (info) {
-                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey
-                                       processorIdentifier:manager.processor.identifier
-                                         ignoreBeProcessed:YES];
+                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
             }
             imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
             
@@ -333,11 +331,9 @@ static int _YYWebImageHighlightedSetterKey;
             NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
             NSString *cacheKey = originalCacheKey;
             
-            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
+            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
             if (info) {
-                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey
-                                       processorIdentifier:manager.processor.identifier
-                                         ignoreBeProcessed:YES];
+                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
             }
             imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
             

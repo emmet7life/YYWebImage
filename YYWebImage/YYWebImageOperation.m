@@ -243,7 +243,7 @@ static void URLInBlackListAdd(NSURL *url) {
 
 - (instancetype)init {
     @throw [NSException exceptionWithName:@"YYWebImageOperation init error" reason:@"YYWebImageOperation must be initialized with a request. Use the designated initializer to init." userInfo:nil];
-    return [self initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@""]] options:0 info:nil cache:nil cacheKey:nil cacheSerializer:nil processor:nil modifier:nil progress:nil transform:nil completion:nil];
+    return [self initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@""]] options:0 info:nil cache:nil cacheKey:nil cacheSerializer:nil processor:nil progress:nil transform:nil completion:nil];
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request
@@ -253,7 +253,6 @@ static void URLInBlackListAdd(NSURL *url) {
                        cacheKey:(NSString *)cacheKey
                 cacheSerializer:(nullable id)cacheSerializer
                       processor:(nullable id)processor
-                       modifier:(nullable id)modifier
                        progress:(YYWebImageProgressBlock)progress
                       transform:(YYWebImageTransformBlock)transform
                      completion:(YYWebImageCompletionBlock)completion {
@@ -266,7 +265,6 @@ static void URLInBlackListAdd(NSURL *url) {
     _cacheKey = cacheKey ? cacheKey : request.URL.absoluteString;
     _cacheSerializer = cacheSerializer;
     _processor = processor;
-    _modifier = modifier;
     _shouldUseCredentialStorage = YES;
     _progress = progress;
     _transform = transform;
@@ -334,9 +332,7 @@ static void URLInBlackListAdd(NSURL *url) {
             !(_options & YYWebImageOptionRefreshImageCache)) {
             
             // diffrent cache type use diffrent cache key
-            NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey
-                                                    processorIdentifier:_processor.identifier
-                                                      ignoreBeProcessed:YES];
+            NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
             NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:_cacheKey];
             
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
@@ -364,11 +360,11 @@ static void URLInBlackListAdd(NSURL *url) {
                     UIImage *image = [self _getImageFromDisk:diskCacheKey];
                     if (image) {
                         // add to memory cache
-                        // Attension >> memoryCacheKey must be refetch again. do not use prev value
-                        NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey
-                                                                processorIdentifier:_processor.identifier
-                                                                  ignoreBeProcessed:NO];
-                        [self.cache setImage:image imageData:nil forKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+                        NSString *cacheKey = diskCacheKey;
+                        if (self.info.yy_beProcessed) {
+                            cacheKey = memoryCacheKey;
+                        }
+                        [self.cache setImage:image imageData:nil forKey:cacheKey withType:YYImageCacheTypeMemory];
                         [self performSelector:@selector(_didReceiveImageFromDiskCache:) onThread:[self.class _networkThread] withObject:image waitUntilDone:NO];
                     } else {
                         [self performSelector:@selector(_startRequest:) onThread:[self.class _networkThread] withObject:nil waitUntilDone:NO];
@@ -478,6 +474,7 @@ static void URLInBlackListAdd(NSURL *url) {
 #pragma mark - Cache Operation. Include get from cache and store to cache
 
 - (nullable UIImage *)_getImageFromDisk:(NSString *)cacheKey {
+    UIImage *image;
     NSData *data = (id)[_cache objectForKey:cacheKey withType:YYImageCacheTypeDisk];
     if (data) {
         YYImageType imageType = YYImageDetectType((__bridge CFDataRef)data);
@@ -492,16 +489,34 @@ static void URLInBlackListAdd(NSURL *url) {
                     [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
                     UIImage * processedImage = [self.processor processData:data options:_info];
                     if (processedImage) {
+                        image = processedImage;
                         [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];
-                        return processedImage;
                     }
                 }
             } break;
             default: break;
         }
     }
+    
+    if ([self isCancelled]) return nil;
+    
     // default handler
-    return [self.cache getImageForKey:cacheKey withType:YYImageCacheTypeDisk];;
+    if (!image) {
+        image = [self.cache getImageForKey:cacheKey withType:YYImageCacheTypeDisk];;
+    }
+    
+    if ([self isCancelled]) return nil;
+    
+    // transform image if needed.
+    if (self.transform && image) {
+        UIImage *newImage = self.transform(image, self.request.URL);
+        if (newImage != image) {
+            image = newImage;
+        }
+        if ([self isCancelled]) return nil;
+    }
+    
+    return image;
 }
 
 - (void)_cacheImage:(UIImage *)image imageData:(NSData *)imageData {
@@ -509,10 +524,14 @@ static void URLInBlackListAdd(NSURL *url) {
     if (!originalCacheKey || (image == nil && imageData.length == 0)) return;
     
     // diffrent cache type use diffrent cache key
+    NSString *memoryCacheKey;
     NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:_cacheKey];
-    NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey
-                                            processorIdentifier:_processor.identifier
-                                              ignoreBeProcessed:NO];
+    if (_info.yy_beProcessed) {
+        memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+    } else {
+        memoryCacheKey = diskCacheKey;
+    }
+    
     NSData *data = _data;
     
     // dispatch to _imageQueue execute task
@@ -810,23 +829,13 @@ static void URLInBlackListAdd(NSURL *url) {
                 }
                 if ([self isCancelled]) return;
                 
-                // modify image if needed.
-                if (self.modifier && image) {
-                    UIImage *newImage = [self.modifier modifyImage:image options:_info];
-                    if (newImage != image) {
-                        self.data = nil;
-                    }
-                    image = newImage;
-                    if ([self isCancelled]) return;
-                }
-                
                 // transform image if needed.
                 if (self.transform && image) {
                     UIImage *newImage = self.transform(image, self.request.URL);
                     if (newImage != image) {
                         self.data = nil;
+                        image = newImage;
                     }
-                    image = newImage;
                     if ([self isCancelled]) return;
                 }
                 

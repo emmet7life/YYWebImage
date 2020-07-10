@@ -121,10 +121,12 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
     if (!key || (image == nil && imageData.length == 0)) return;
     
     #ifdef DEBUG
+    NSLog(@"=========================================================================================Start");
     NSLog(@"YYWebImage >> setImage >> image is %@", image ? @"YES" : @"NO");
     NSLog(@"YYWebImage >> setImage >> data  is %@", imageData ? @"YES" : @"NO");
     NSLog(@"YYWebImage >> setImage >> type  is %lu", (unsigned long)type);
     NSLog(@"YYWebImage >> setImage >> key   is %@", key);
+    NSLog(@"===========================================================================================End");
     #endif
     
     __weak typeof(self) _self = self;
@@ -196,20 +198,19 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
 
 - (id<NSCoding>)objectForKey:(NSString *)key withType:(YYImageCacheType)type {
     #ifdef DEBUG
-    NSLog(@"YYWebImage >> objectForKey >> type is %lu", (unsigned long)type);
     NSLog(@"YYWebImage >> objectForKey >> key  is %@", key);
     #endif
     if (type & YYImageCacheTypeMemory) {
         UIImage *image = (id)[_memoryCache objectForKey:key];
         #ifdef DEBUG
-        NSLog(@"YYWebImage >> getImageForKey >> MEMO result  is %@", image ? @"✅" : @"❌");
+        NSLog(@"YYWebImage >> objectForKey >> MEMO result  is %@", image ? @"✅" : @"❌");
         #endif
         return image;
     }
     if (type & YYImageCacheTypeDisk) {
         NSData *data = (id)[_diskCache objectForKey:key];
         #ifdef DEBUG
-        NSLog(@"YYWebImage >> getImageForKey >> DISK result  is %@", data ? @"✅" : @"❌");
+        NSLog(@"YYWebImage >> objectForKey >> DISK result  is %@", data ? @"✅" : @"❌");
         #endif
         return data;
     }
@@ -222,7 +223,6 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
 
 - (UIImage *)getImageForKey:(NSString *)key withType:(YYImageCacheType)type {
     #ifdef DEBUG
-    NSLog(@"YYWebImage >> getImageForKey >> type is %lu", (unsigned long)type);
     NSLog(@"YYWebImage >> getImageForKey >> key  is %@", key);
     #endif
     if (!key) return nil;

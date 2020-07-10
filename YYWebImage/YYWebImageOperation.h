@@ -46,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly)                   YYWebImageOptions options;   ///< The operation's option.
 @property (nullable, nonatomic, strong, readonly) id<YYWebImageCacheSerializer> cacheSerializer;    ///< The cache serializer
 @property (nullable, nonatomic, strong, readonly) id<YYWebImageProcessor> processor;                ///< The processor
-@property (nullable, nonatomic, strong, readonly) id<YYWebImageModifier> modifier;                  ///< The modifier
 @property (nullable, nonatomic, strong, readonly) NSMutableDictionary<NSString *, id> *info;        ///< The dict info
 
 /**
@@ -92,7 +91,6 @@ NS_ASSUME_NONNULL_BEGIN
                        cacheKey:(nullable NSString *)cacheKey
                 cacheSerializer:(nullable id)cacheSerializer
                       processor:(nullable id)processor
-                       modifier:(nullable id)modifier
                        progress:(nullable YYWebImageProgressBlock)progress
                       transform:(nullable YYWebImageTransformBlock)transform
                      completion:(nullable YYWebImageCompletionBlock)completion NS_DESIGNATED_INITIALIZER;

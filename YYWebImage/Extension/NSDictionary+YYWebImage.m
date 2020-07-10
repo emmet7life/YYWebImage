@@ -59,21 +59,36 @@
     return beProcessed;
 }
 
-- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey
-                    processorIdentifier:(nullable NSString *)identifier
-                      ignoreBeProcessed:(Boolean)isIgnoreBeProcessed {
-    NSString *tmp = cacheKey;
-    if (isIgnoreBeProcessed || self.yy_beProcessed) {
-        CGSize targetSize = self.yy_targetSize;
-        CGFloat targetScale = self.yy_targetScale;
-        if (targetSize.width > 0 && targetSize.height > 0) {
-            tmp = [tmp stringByAppendingFormat:@"_%ld", (NSInteger)(targetSize.width * targetScale)];
-            tmp = [tmp stringByAppendingFormat:@"_x_%ld", (NSInteger)(targetSize.height * targetScale)];
-            if (identifier) {
-                tmp = [tmp stringByAppendingFormat:@"_%@", identifier];
-            }
-        }
+- (NSString *)yy_transformIdentifier {
+    NSString *transformIdentifier = @"";
+    NSValue *value = self[kYYWebImageOptionTransformIdentifier];
+    if (value) {
+        transformIdentifier = (NSString *)value.pointerValue;
     }
+    return transformIdentifier;
+}
+
+- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey
+                    processorIdentifier:(nullable NSString *)identifier {
+    NSString *tmp = cacheKey;
+    
+    CGSize targetSize = self.yy_targetSize;
+    if (targetSize.width > 0 && targetSize.height > 0) {
+        CGFloat targetScale = self.yy_targetScale;
+        NSInteger widthPixel = (NSInteger)(targetSize.width * targetScale);
+        NSInteger heightPixel = (NSInteger)(targetSize.height * targetScale);
+        tmp = [tmp stringByAppendingFormat:@"_%ld_x_%ld", widthPixel, heightPixel];
+    }
+    
+    if (identifier && identifier.length > 0) {
+        tmp = [tmp stringByAppendingFormat:@"_%@", identifier];
+    }
+    
+    NSString *transformIdentifier = self.yy_transformIdentifier;
+    if (transformIdentifier && transformIdentifier.length > 0) {
+        tmp = [tmp stringByAppendingFormat:@"_%@", transformIdentifier];
+    }
+    
     return tmp;
 }
 

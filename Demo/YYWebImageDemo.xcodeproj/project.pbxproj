@@ -10,7 +10,6 @@
 		B947210624B5F287007F6E79 /* YYWebImageCacheSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B947210524B5F287007F6E79 /* YYWebImageCacheSerializer.m */; };
 		B947210924B5F45F007F6E79 /* YYWebImageProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B947210824B5F45F007F6E79 /* YYWebImageProcessor.m */; };
 		B947210C24B6B69C007F6E79 /* YYWebImageConstMacro.m in Sources */ = {isa = PBXBuildFile; fileRef = B947210B24B6B69C007F6E79 /* YYWebImageConstMacro.m */; };
-		B947210F24B6BB02007F6E79 /* YYWebImageModifier.m in Sources */ = {isa = PBXBuildFile; fileRef = B947210E24B6BB02007F6E79 /* YYWebImageModifier.m */; };
 		B947212524B6E67A007F6E79 /* YYWebImageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B947212424B6E67A007F6E79 /* YYWebImageUtils.m */; };
 		B9A21BD524B73B5400EF1E00 /* NSDictionary+YYWebImage.m in Sources */ = {isa = PBXBuildFile; fileRef = B9A21BD424B73B5400EF1E00 /* NSDictionary+YYWebImage.m */; };
 		B9A21BD824B7495E00EF1E00 /* YYWebImageProExample.m in Sources */ = {isa = PBXBuildFile; fileRef = B9A21BD724B7495E00EF1E00 /* YYWebImageProExample.m */; };
@@ -79,8 +78,6 @@
 		B947210824B5F45F007F6E79 /* YYWebImageProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYWebImageProcessor.m; sourceTree = "<group>"; };
 		B947210A24B5FCD5007F6E79 /* YYWebImageConstMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YYWebImageConstMacro.h; sourceTree = "<group>"; };
 		B947210B24B6B69C007F6E79 /* YYWebImageConstMacro.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYWebImageConstMacro.m; sourceTree = "<group>"; };
-		B947210D24B6BB02007F6E79 /* YYWebImageModifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YYWebImageModifier.h; sourceTree = "<group>"; };
-		B947210E24B6BB02007F6E79 /* YYWebImageModifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYWebImageModifier.m; sourceTree = "<group>"; };
 		B947212324B6E67A007F6E79 /* YYWebImageUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YYWebImageUtils.h; sourceTree = "<group>"; };
 		B947212424B6E67A007F6E79 /* YYWebImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYWebImageUtils.m; sourceTree = "<group>"; };
 		B9A21BD324B73B5400EF1E00 /* NSDictionary+YYWebImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+YYWebImage.h"; sourceTree = "<group>"; };
@@ -212,8 +209,6 @@
 				B947210524B5F287007F6E79 /* YYWebImageCacheSerializer.m */,
 				B947210724B5F45F007F6E79 /* YYWebImageProcessor.h */,
 				B947210824B5F45F007F6E79 /* YYWebImageProcessor.m */,
-				B947210D24B6BB02007F6E79 /* YYWebImageModifier.h */,
-				B947210E24B6BB02007F6E79 /* YYWebImageModifier.m */,
 				B9A21BD324B73B5400EF1E00 /* NSDictionary+YYWebImage.h */,
 				B9A21BD424B73B5400EF1E00 /* NSDictionary+YYWebImage.m */,
 			);
@@ -520,7 +515,6 @@
 				D9EF63C61F36DF7C00AB19C3 /* CALayer+YYWebImage.m in Sources */,
 				D9EF640D1F36E24D00AB19C3 /* YYImageDisplayExample.m in Sources */,
 				B947210624B5F287007F6E79 /* YYWebImageCacheSerializer.m in Sources */,
-				B947210F24B6BB02007F6E79 /* YYWebImageModifier.m in Sources */,
 				D9EF640F1F36E24D00AB19C3 /* YYWebImageExample.m in Sources */,
 				D9EF63C91F36DF7C00AB19C3 /* UIImage+YYWebImage.m in Sources */,
 				D9EF64101F36E24D00AB19C3 /* YYImageExampleHelper.m in Sources */,
