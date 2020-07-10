@@ -12,6 +12,7 @@
 #import "UIButton+YYWebImage.h"
 #import "YYWebImageOperation.h"
 #import "_YYWebImageSetter.h"
+#import "NSDictionary+YYWebImage.h"
 #import <objc/runtime.h>
 
 // Dummy class for category
@@ -81,6 +82,7 @@ static int _YYWebImageBackgroundSetterKey;
              forSingleState:(NSNumber *)state
                 placeholder:(UIImage *)placeholder
                     options:(YYWebImageOptions)options
+                       info:(NSDictionary<NSString *, id> *)info
                     manager:(YYWebImageManager *)manager
                    progress:(YYWebImageProgressBlock)progress
                   transform:(YYWebImageTransformBlock)transform
@@ -109,7 +111,22 @@ static int _YYWebImageBackgroundSetterKey;
         if (manager.cache &&
             !(options & YYWebImageOptionUseNSURLCache) &&
             !(options & YYWebImageOptionRefreshImageCache)) {
-            imageFromMemory = [manager.cache getImageForKey:[manager cacheKeyForURL:imageURL] withType:YYImageCacheTypeMemory];
+            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
+            NSString *cacheKey = originalCacheKey;
+            
+            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
+            if (info) {
+                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey
+                                       processorIdentifier:manager.processor.identifier
+                                         ignoreBeProcessed:YES];
+            }
+            imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            
+            // 2. if failed. then try key type: URL
+            if (!imageFromMemory) {
+                cacheKey = [info yy_cacheKeyForDiskCache:originalCacheKey];
+                imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            }
         }
         if (imageFromMemory) {
             if (!(options & YYWebImageOptionAvoidSetImage)) {
@@ -153,7 +170,7 @@ static int _YYWebImageBackgroundSetterKey;
                 });
             };
             
-            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:nil manager:manager progress:_progress transform:transform completion:_completion];
+            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:info manager:manager progress:_progress transform:transform completion:_completion];
             weakSetter = setter;
         });
     });
@@ -173,11 +190,13 @@ static int _YYWebImageBackgroundSetterKey;
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
                   forState:(UIControlState)state
-               placeholder:(UIImage *)placeholder {
+               placeholder:(UIImage *)placeholder
+                      info:(NSDictionary<NSString *, id> *)info {
     [self yy_setImageWithURL:imageURL
                  forState:state
               placeholder:placeholder
                   options:kNilOptions
+                     info:info
                   manager:nil
                  progress:nil
                 transform:nil
@@ -186,11 +205,13 @@ static int _YYWebImageBackgroundSetterKey;
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
                   forState:(UIControlState)state
-                   options:(YYWebImageOptions)options {
+                   options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info {
     [self yy_setImageWithURL:imageURL
                     forState:state
                  placeholder:nil
                      options:options
+                        info:info
                      manager:nil
                     progress:nil
                    transform:nil
@@ -201,11 +222,13 @@ static int _YYWebImageBackgroundSetterKey;
                   forState:(UIControlState)state
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info
                 completion:(YYWebImageCompletionBlock)completion {
     [self yy_setImageWithURL:imageURL
                     forState:state
                  placeholder:placeholder
                      options:options
+                        info:info
                      manager:nil
                     progress:nil
                    transform:nil
@@ -216,6 +239,7 @@ static int _YYWebImageBackgroundSetterKey;
                   forState:(UIControlState)state
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info
                   progress:(YYWebImageProgressBlock)progress
                  transform:(YYWebImageTransformBlock)transform
                 completion:(YYWebImageCompletionBlock)completion {
@@ -223,6 +247,7 @@ static int _YYWebImageBackgroundSetterKey;
                     forState:state
                  placeholder:placeholder
                      options:options
+                        info:info
                      manager:nil
                     progress:progress
                    transform:transform
@@ -233,6 +258,7 @@ static int _YYWebImageBackgroundSetterKey;
                   forState:(UIControlState)state
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info
                    manager:(YYWebImageManager *)manager
                   progress:(YYWebImageProgressBlock)progress
                  transform:(YYWebImageTransformBlock)transform
@@ -242,6 +268,7 @@ static int _YYWebImageBackgroundSetterKey;
                    forSingleState:num
                       placeholder:placeholder
                           options:options
+                             info:info
                           manager:manager
                          progress:progress
                         transform:transform
@@ -262,6 +289,7 @@ static int _YYWebImageBackgroundSetterKey;
                        forSingleState:(NSNumber *)state
                           placeholder:(UIImage *)placeholder
                               options:(YYWebImageOptions)options
+                                 info:(NSDictionary<NSString *, id> *)info
                               manager:(YYWebImageManager *)manager
                              progress:(YYWebImageProgressBlock)progress
                             transform:(YYWebImageTransformBlock)transform
@@ -290,7 +318,22 @@ static int _YYWebImageBackgroundSetterKey;
         if (manager.cache &&
             !(options & YYWebImageOptionUseNSURLCache) &&
             !(options & YYWebImageOptionRefreshImageCache)) {
-            imageFromMemory = [manager.cache getImageForKey:[manager cacheKeyForURL:imageURL] withType:YYImageCacheTypeMemory];
+            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
+            NSString *cacheKey = originalCacheKey;
+            
+            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
+            if (info) {
+                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey
+                                       processorIdentifier:manager.processor.identifier
+                                         ignoreBeProcessed:YES];
+            }
+            imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            
+            // 2. if failed. then try key type: URL
+            if (!imageFromMemory) {
+                cacheKey = [info yy_cacheKeyForDiskCache:originalCacheKey];
+                imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            }
         }
         if (imageFromMemory) {
             if (!(options & YYWebImageOptionAvoidSetImage)) {
@@ -334,7 +377,7 @@ static int _YYWebImageBackgroundSetterKey;
                 });
             };
             
-            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:nil manager:manager progress:_progress transform:transform completion:_completion];
+            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:info manager:manager progress:_progress transform:transform completion:_completion];
             weakSetter = setter;
         });
     });
@@ -354,11 +397,13 @@ static int _YYWebImageBackgroundSetterKey;
 
 - (void)yy_setBackgroundImageWithURL:(NSURL *)imageURL
                             forState:(UIControlState)state
-                         placeholder:(UIImage *)placeholder {
+                         placeholder:(UIImage *)placeholder
+                                info:(NSDictionary<NSString *, id> *)info {
     [self yy_setBackgroundImageWithURL:imageURL
                               forState:state
                            placeholder:placeholder
                                options:kNilOptions
+                                  info:info
                                manager:nil
                               progress:nil
                              transform:nil
@@ -367,11 +412,13 @@ static int _YYWebImageBackgroundSetterKey;
 
 - (void)yy_setBackgroundImageWithURL:(NSURL *)imageURL
                             forState:(UIControlState)state
-                             options:(YYWebImageOptions)options {
+                             options:(YYWebImageOptions)options
+                                info:(NSDictionary<NSString *, id> *)info {
     [self yy_setBackgroundImageWithURL:imageURL
                               forState:state
                            placeholder:nil
                                options:options
+                                  info:info
                                manager:nil
                               progress:nil
                              transform:nil
@@ -382,11 +429,13 @@ static int _YYWebImageBackgroundSetterKey;
                             forState:(UIControlState)state
                          placeholder:(UIImage *)placeholder
                              options:(YYWebImageOptions)options
+                                info:(NSDictionary<NSString *, id> *)info
                           completion:(YYWebImageCompletionBlock)completion {
     [self yy_setBackgroundImageWithURL:imageURL
                               forState:state
                            placeholder:placeholder
                                options:options
+                                  info:info
                                manager:nil
                               progress:nil
                              transform:nil
@@ -397,6 +446,7 @@ static int _YYWebImageBackgroundSetterKey;
                             forState:(UIControlState)state
                          placeholder:(UIImage *)placeholder
                              options:(YYWebImageOptions)options
+                                info:(NSDictionary<NSString *, id> *)info
                             progress:(YYWebImageProgressBlock)progress
                            transform:(YYWebImageTransformBlock)transform
                           completion:(YYWebImageCompletionBlock)completion {
@@ -404,6 +454,7 @@ static int _YYWebImageBackgroundSetterKey;
                               forState:state
                            placeholder:placeholder
                                options:options
+                                  info:info
                                manager:nil
                               progress:progress
                              transform:transform
@@ -414,6 +465,7 @@ static int _YYWebImageBackgroundSetterKey;
                             forState:(UIControlState)state
                          placeholder:(UIImage *)placeholder
                              options:(YYWebImageOptions)options
+                                info:(NSDictionary<NSString *, id> *)info
                              manager:(YYWebImageManager *)manager
                             progress:(YYWebImageProgressBlock)progress
                            transform:(YYWebImageTransformBlock)transform
@@ -423,6 +475,7 @@ static int _YYWebImageBackgroundSetterKey;
                              forSingleState:num
                                 placeholder:placeholder
                                     options:options
+                                       info:info
                                     manager:manager
                                    progress:progress
                                   transform:transform

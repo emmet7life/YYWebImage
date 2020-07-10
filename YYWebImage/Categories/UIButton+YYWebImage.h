@@ -38,10 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
  @param imageURL    The image url (remote or local file path).
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  */
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                   forState:(UIControlState)state
-               placeholder:(nullable UIImage *)placeholder;
+               placeholder:(nullable UIImage *)placeholder
+                      info:(nullable NSDictionary<NSString *, id> *)info;
 
 /**
  Set the button's image with a specified URL for the specified state.
@@ -49,10 +51,12 @@ NS_ASSUME_NONNULL_BEGIN
  @param imageURL The image url (remote or local file path).
  @param state    The state that uses the specified image.
  @param options  The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  */
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                   forState:(UIControlState)state
-                   options:(YYWebImageOptions)options;
+                   options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info;
 
 /**
  Set the button's image with a specified URL for the specified state.
@@ -61,12 +65,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
  @param options     The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  @param completion  The block invoked (on main thread) when image request completed.
  */
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                   forState:(UIControlState)state
                placeholder:(nullable UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info
                 completion:(nullable YYWebImageCompletionBlock)completion;
 
 /**
@@ -76,6 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
  @param options     The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  @param progress    The block invoked (on main thread) during image request.
  @param transform   The block invoked (on background thread) to do additional image process.
  @param completion  The block invoked (on main thread) when image request completed.
@@ -84,6 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
                   forState:(UIControlState)state
                placeholder:(nullable UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info
                   progress:(nullable YYWebImageProgressBlock)progress
                  transform:(nullable YYWebImageTransformBlock)transform
                 completion:(nullable YYWebImageCompletionBlock)completion;
@@ -95,6 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
  @param options     The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  @param manager     The manager to create image request operation.
  @param progress    The block invoked (on main thread) during image request.
  @param transform   The block invoked (on background thread) to do additional image process.
@@ -104,6 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
                   forState:(UIControlState)state
                placeholder:(nullable UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(nullable NSDictionary<NSString *, id> *)info
                    manager:(nullable YYWebImageManager *)manager
                   progress:(nullable YYWebImageProgressBlock)progress
                  transform:(nullable YYWebImageTransformBlock)transform
@@ -131,10 +141,12 @@ NS_ASSUME_NONNULL_BEGIN
  @param imageURL    The image url (remote or local file path).
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  */
 - (void)yy_setBackgroundImageWithURL:(nullable NSURL *)imageURL
                             forState:(UIControlState)state
-                         placeholder:(nullable UIImage *)placeholder;
+                         placeholder:(nullable UIImage *)placeholder
+                                info:(nullable NSDictionary<NSString *, id> *)info;
 
 /**
  Set the button's backgroundImage with a specified URL for the specified state.
@@ -142,10 +154,12 @@ NS_ASSUME_NONNULL_BEGIN
  @param imageURL The image url (remote or local file path).
  @param state    The state that uses the specified image.
  @param options  The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  */
 - (void)yy_setBackgroundImageWithURL:(nullable NSURL *)imageURL
                             forState:(UIControlState)state
-                             options:(YYWebImageOptions)options;
+                             options:(YYWebImageOptions)options
+                                info:(nullable NSDictionary<NSString *, id> *)info;
 
 /**
  Set the button's backgroundImage with a specified URL for the specified state.
@@ -154,12 +168,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
  @param options     The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  @param completion  The block invoked (on main thread) when image request completed.
  */
 - (void)yy_setBackgroundImageWithURL:(nullable NSURL *)imageURL
                             forState:(UIControlState)state
                          placeholder:(nullable UIImage *)placeholder
                              options:(YYWebImageOptions)options
+                                info:(nullable NSDictionary<NSString *, id> *)info
                           completion:(nullable YYWebImageCompletionBlock)completion;
 
 /**
@@ -169,6 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
  @param options     The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key.
  @param progress    The block invoked (on main thread) during image request.
  @param transform   The block invoked (on background thread) to do additional image process.
  @param completion  The block invoked (on main thread) when image request completed.
@@ -177,6 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
                             forState:(UIControlState)state
                          placeholder:(nullable UIImage *)placeholder
                              options:(YYWebImageOptions)options
+                                info:(nullable NSDictionary<NSString *, id> *)info
                             progress:(nullable YYWebImageProgressBlock)progress
                            transform:(nullable YYWebImageTransformBlock)transform
                           completion:(nullable YYWebImageCompletionBlock)completion;
@@ -188,6 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param state       The state that uses the specified image.
  @param placeholder The image to be set initially, until the image request finishes.
  @param options     The options to use when request the image.
+ @param info   The dictionary info. generally only set value with kYYWebImageOptionTargetSize key. 
  @param manager     The manager to create image request operation.
  @param progress    The block invoked (on main thread) during image request.
  @param transform   The block invoked (on background thread) to do additional image process.
@@ -197,6 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
                             forState:(UIControlState)state
                          placeholder:(nullable UIImage *)placeholder
                              options:(YYWebImageOptions)options
+                                info:(nullable NSDictionary<NSString *, id> *)info
                              manager:(nullable YYWebImageManager *)manager
                             progress:(nullable YYWebImageProgressBlock)progress
                            transform:(nullable YYWebImageTransformBlock)transform

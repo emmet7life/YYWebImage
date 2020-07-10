@@ -10,6 +10,7 @@
 #import "YYImageCoder.h"
 #import "YYWebImageConstMacro.h"
 #import "YYWebImageUtils.h"
+#import "NSDictionary+YYWebImage.h"
 #import <UIKit/UIKit.h>
 
 @implementation YYWebImageDefaultProcessor
@@ -19,33 +20,26 @@
 }
 
 - (UIImage *)processImage:(UIImage *)image options:(NSDictionary<NSString *, id> *)info {
-    return nil;
+    return image;
 }
 
 - (UIImage *)processData:(NSData *)data options:(NSDictionary<NSString *, id> *)info {
     YYImageType imageType = YYImageTypeOther;
     CGSize targetSize = CGSizeZero;
-    CGFloat targetScale = 1.0;
-    Boolean shouldDecode = NO;
+    CGFloat targetScale = 0;
+    Boolean shouldDecode = YES;// default YES
     
     if (info) {
-        NSNumber *num = info[kYYWebImageOptionImageType];
-        imageType = num.unsignedIntegerValue;
-        
-        num = info[kYYWebImageOptionTargetSize];
-        targetSize = num.CGSizeValue;
-        
-        num = info[kYYWebImageOptionTargetScale];
-        targetScale = num.floatValue;
-        
-        num = info[kYYWebImageOptionShouldDecode];
-        shouldDecode = num.boolValue;
+        imageType = info.yy_imageType;
+        targetSize = info.yy_targetSize;
+        targetScale = info.yy_targetScale;
+        shouldDecode = info.yy_shouldDecode;
     }
     
     // convert point unit to pixel unit if needed
     if (targetSize.width > 0 && targetSize.height > 0) {
         if (targetScale <= 0) {
-            targetScale = 1.0;
+            targetScale = [UIScreen mainScreen].scale;
         }
         CGFloat widthPixel = targetSize.width * targetScale;
         CGFloat heightPixel = targetSize.height * targetScale;

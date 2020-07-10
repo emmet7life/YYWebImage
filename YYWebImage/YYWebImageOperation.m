@@ -339,7 +339,7 @@ static void URLInBlackListAdd(NSURL *url) {
                                                       ignoreBeProcessed:YES];
             NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:_cacheKey];
             
-            // try key mode: URL_width_height
+            // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
             UIImage *image = [_cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             
             if (!image) {
@@ -364,7 +364,7 @@ static void URLInBlackListAdd(NSURL *url) {
                     UIImage *image = [self _getImageFromDisk:diskCacheKey];
                     if (image) {
                         // add to memory cache
-                        // Attension >> memoryCacheKey must be refetch again. do not use prev value.
+                        // Attension >> memoryCacheKey must be refetch again. do not use prev value
                         NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey
                                                                 processorIdentifier:_processor.identifier
                                                                   ignoreBeProcessed:NO];
@@ -478,17 +478,18 @@ static void URLInBlackListAdd(NSURL *url) {
 #pragma mark - Cache Operation. Include get from cache and store to cache
 
 - (nullable UIImage *)_getImageFromDisk:(NSString *)cacheKey {
-    [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
-    
     NSData *data = (id)[_cache objectForKey:cacheKey withType:YYImageCacheTypeDisk];
     if (data) {
         YYImageType imageType = YYImageDetectType((__bridge CFDataRef)data);
+        BOOL shouldDecode = (self.options & YYWebImageOptionIgnoreImageDecoding) == 0;
+        [_info setValue:@(shouldDecode) forKey:kYYWebImageOptionShouldDecode];
         [_info setValue:@(imageType) forKey:kYYWebImageOptionImageType];
         switch (imageType) {
             case YYImageTypeJPEG:
             case YYImageTypePNG: {
                 // try use processor handler
                 if (self.processor) {
+                    [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
                     UIImage * processedImage = [self.processor processData:data options:_info];
                     if (processedImage) {
                         [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];

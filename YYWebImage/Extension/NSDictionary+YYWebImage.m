@@ -14,22 +14,29 @@
 - (YYImageType)yy_imageType {
     YYImageType imageType = YYImageTypeOther;
     NSNumber *num = self[kYYWebImageOptionImageType];
-    imageType = num.unsignedIntegerValue;
+    if (num) {
+        imageType = num.unsignedIntegerValue;
+    }
     return imageType;
 }
 
 - (CGSize)yy_targetSize {
     CGSize targetSize = CGSizeZero;
     NSNumber *num = self[kYYWebImageOptionTargetSize];
-    targetSize = num.CGSizeValue;
+    if (num) {
+        targetSize = num.CGSizeValue;
+    }
     return targetSize;
 }
 
 - (CGFloat)yy_targetScale {
+    CGFloat targetScale = 0;
     NSNumber *num = self[kYYWebImageOptionTargetScale];
-    CGFloat targetScale = num.floatValue;
+    if (num) {
+        targetScale = num.floatValue;
+    }
     if (targetScale <= 0) {
-        targetScale = 1.0;
+        targetScale = [UIScreen mainScreen].scale;
     }
     return targetScale;
 }
@@ -37,14 +44,18 @@
 - (Boolean)yy_shouldDecode {
     Boolean shouldDecode = NO;
     NSNumber *num = self[kYYWebImageOptionShouldDecode];
-    shouldDecode = num.boolValue;
+    if (num) {
+        shouldDecode = num.boolValue;
+    }
     return shouldDecode;
 }
 
 - (Boolean)yy_beProcessed {
     Boolean beProcessed = NO;
     NSNumber *num = self[kYYWebImageOptionBeProcessed];
-    beProcessed = num.boolValue;
+    if (num) {
+        beProcessed = num.boolValue;
+    }
     return beProcessed;
 }
 

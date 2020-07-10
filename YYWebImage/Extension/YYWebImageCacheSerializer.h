@@ -13,12 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 图片序列化器
 @protocol YYWebImageCacheSerializer <NSObject>
-@required
-- (nullable NSData *)dataWith:(UIImage *)image
-                 originalData:(nullable NSData *)data;
 
-- (nullable UIImage *)imageWith:(nullable NSData *)data
-                 options:(nullable NSDictionary *)options;
+@required
+- (nullable NSData *)dataWith:(nullable UIImage *)image originalData:(nullable NSData *)data;       ///> serialize image to data.
+- (nullable UIImage *)imageWith:(nullable NSData *)data options:(nullable NSDictionary *)options;   ///> deserialize data to image.
 
 @end
 

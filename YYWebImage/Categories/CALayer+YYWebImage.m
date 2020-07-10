@@ -12,6 +12,7 @@
 #import "CALayer+YYWebImage.h"
 #import "YYWebImageOperation.h"
 #import "_YYWebImageSetter.h"
+#import "NSDictionary+YYWebImage.h"
 #import <objc/runtime.h>
 
 // Dummy class for category
@@ -32,26 +33,33 @@ static int _YYWebImageSetterKey;
     [self yy_setImageWithURL:imageURL
               placeholder:nil
                   options:kNilOptions
+                     info:nil
                   manager:nil
                  progress:nil
                 transform:nil
                completion:nil];
 }
 
-- (void)yy_setImageWithURL:(NSURL *)imageURL placeholder:(UIImage *)placeholder {
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+               placeholder:(UIImage *)placeholder
+                      info:(NSDictionary<NSString *, id> *)info {
     [self yy_setImageWithURL:imageURL
                  placeholder:placeholder
                      options:kNilOptions
+                        info:info
                      manager:nil
                     progress:nil
                    transform:nil
                   completion:nil];
 }
 
-- (void)yy_setImageWithURL:(NSURL *)imageURL options:(YYWebImageOptions)options {
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+                   options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info {
     [self yy_setImageWithURL:imageURL
                  placeholder:nil
                      options:options
+                        info:info
                      manager:nil
                     progress:nil
                    transform:nil
@@ -61,10 +69,12 @@ static int _YYWebImageSetterKey;
 - (void)yy_setImageWithURL:(NSURL *)imageURL
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info
                 completion:(YYWebImageCompletionBlock)completion {
     [self yy_setImageWithURL:imageURL
                  placeholder:placeholder
                      options:options
+                        info:info
                      manager:nil
                     progress:nil
                    transform:nil
@@ -74,12 +84,14 @@ static int _YYWebImageSetterKey;
 - (void)yy_setImageWithURL:(NSURL *)imageURL
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info
                   progress:(YYWebImageProgressBlock)progress
                  transform:(YYWebImageTransformBlock)transform
                 completion:(YYWebImageCompletionBlock)completion {
     [self yy_setImageWithURL:imageURL
                  placeholder:placeholder
                      options:options
+                        info:info
                      manager:nil
                     progress:progress
                    transform:transform
@@ -89,6 +101,7 @@ static int _YYWebImageSetterKey;
 - (void)yy_setImageWithURL:(NSURL *)imageURL
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
+                      info:(NSDictionary<NSString *, id> *)info
                    manager:(YYWebImageManager *)manager
                   progress:(YYWebImageProgressBlock)progress
                  transform:(YYWebImageTransformBlock)transform
@@ -122,7 +135,22 @@ static int _YYWebImageSetterKey;
         if (manager.cache &&
             !(options & YYWebImageOptionUseNSURLCache) &&
             !(options & YYWebImageOptionRefreshImageCache)) {
-            imageFromMemory = [manager.cache getImageForKey:[manager cacheKeyForURL:imageURL] withType:YYImageCacheTypeMemory];
+            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
+            NSString *cacheKey = originalCacheKey;
+            
+            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]
+            if (info) {
+                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey
+                                       processorIdentifier:manager.processor.identifier
+                                         ignoreBeProcessed:YES];
+            }
+            imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            
+            // 2. if failed. then try key type: URL
+            if (!imageFromMemory) {
+                cacheKey = [info yy_cacheKeyForDiskCache:originalCacheKey];
+                imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+            }
         }
         if (imageFromMemory) {
             if (!(options & YYWebImageOptionAvoidSetImage)) {
@@ -173,7 +201,7 @@ static int _YYWebImageSetterKey;
                 });
             };
             
-            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:nil manager:manager progress:_progress transform:transform completion:_completion];
+            newSentinel = [setter setOperationWithSentinel:sentinel url:imageURL options:options info:info manager:manager progress:_progress transform:transform completion:_completion];
             weakSetter = setter;
         });
         
