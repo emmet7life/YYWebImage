@@ -35,36 +35,77 @@
     [self.view addSubview:button2];
     [button2 addTarget:self action:@selector(buttonTapped2) forControlEvents:UIControlEventTouchUpInside];
     
+    UIButton *button3 = [[UIButton alloc] init];
+    button3.frame = CGRectMake(10, 200, 220, 44);
+    [button3 setTitle:@"Load_NoTransform" forState:UIControlStateNormal];
+    [button3 setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [self.view addSubview:button3];
+    [button3 addTarget:self action:@selector(buttonTapped3) forControlEvents:UIControlEventTouchUpInside];
+    
     UIButton *resetButton = [[UIButton alloc] init];
-    resetButton.frame = CGRectMake(10, 200, 220, 44);
+    resetButton.frame = CGRectMake(10, 250, 220, 44);
     [resetButton setTitle:@"Reset" forState:UIControlStateNormal];
     [resetButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     [self.view addSubview:resetButton];
     [resetButton addTarget:self action:@selector(resetTapped) forControlEvents:UIControlEventTouchUpInside];
     
     UIImageView *imageView = [[YYAnimatedImageView alloc] init];
-    imageView.frame = CGRectMake(10, 250, 200, 400);
+    imageView.frame = CGRectMake(10, 300, 365, 365);
     imageView.clipsToBounds = YES;
+    imageView.backgroundColor = [UIColor darkGrayColor];
     imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.view addSubview:imageView];
     _imageView = imageView;
 }
 
 - (void)buttonTapped {
-    [self fetchImage: CGSizeMake(400, 400)];
+    CGSize size = CGSizeMake(365, 365);
+    CGRect frame = _imageView.frame;
+    frame.size = size;
+    _imageView.frame = frame;
+    [self fetchImageWithTransform:size];
+//    [self fetchImageWithNoTransform: size];
 }
 
 - (void)buttonTapped2 {
-    [self fetchImage: CGSizeMake(100, 100)];
+    CGSize size = CGSizeMake(180, 180);
+    CGRect frame = _imageView.frame;
+    frame.size = size;
+    _imageView.frame = frame;
+    [self fetchImageWithTransform:size];
+//    [self fetchImageWithNoTransform: size];
+}
+
+- (void)buttonTapped3 {
+    [self fetchImageWithNoTransform:_imageView.frame.size];
 }
 
 - (void)resetTapped {
     self.imageView.image = nil;
 }
 
-- (void)fetchImage:(CGSize)targetSize {
+/// With Transform Handler
+- (void)fetchImageWithTransform:(CGSize)targetSize {
+    __weak typeof(self) _self = self;
+    [self fetchImage:targetSize withTransform:^UIImage * _Nullable(YYImageType imageType, UIImage * _Nonnull image, NSURL * _Nonnull url) {
+        __strong typeof(_self) self = _self;
+        if (self) {
+            image = [image yy_imageByResizeToSize:targetSize contentMode:UIViewContentModeScaleAspectFill];
+            image = [image yy_imageByRoundCornerRadius:targetSize.width * 0.1 borderWidth:2.0 borderColor:[UIColor yellowColor]];
+            return image;
+        }
+        return nil;
+    }];
+}
+
+/// With None Transform Handler
+- (void)fetchImageWithNoTransform:(CGSize)targetSize {
+    [self fetchImage:targetSize withTransform:nil];
+}
+
+- (void)fetchImage:(CGSize)targetSize withTransform:(YYWebImageTransformBlock)transform {
     NSDictionary<NSString *, id> *info = @{
-        kYYWebImageOptionTransformIdentifier:[NSValue valueWithPointer:@"CornerTransform"],
+//        kYYWebImageOptionTransformIdentifier:[NSValue valueWithPointer:@"CornerTransform"],// if not set and transform block is not nil kit will use default value
         kYYWebImageOptionTargetSize:@(targetSize)
     };
     
@@ -76,16 +117,12 @@
     
     [_imageView yy_setImageWithURL:url
                           placeholder:nil
-                          options:YYWebImageOptionShowNetworkActivity | YYWebImageOptionSetImageWithFadeAnimation
+                          options:YYWebImageOptionShowNetworkActivity | YYWebImageOptionSetImageWithFadeAnimation | YYWebImageOptionAllowHitMemoryByDiskKeyWithValidTransform
                              info:info
                          progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                            NSLog(@"receivedSize is %ld, expectedSize is %ld", (long)receivedSize, (long)expectedSize);
+//                            NSLog(@"receivedSize is %ld, expectedSize is %ld", (long)receivedSize, (long)expectedSize);
                          }
-//                         transform: nil
-                         transform: ^(UIImage *image, NSURL *url) {
-                            image = [image yy_imageByRoundCornerRadius:20 borderWidth:1.0 borderColor:[UIColor grayColor]];
-                            return image;
-                         }
+                         transform: transform
                          completion:^(UIImage *image, NSURL *url, YYWebImageFromType from, YYWebImageStage stage, NSError *error) {
                             if (stage == YYWebImageStageFinished) {
                                 NSString *fromTypeStr = @"None";
@@ -112,5 +149,4 @@
                               }
                          }];
 }
-
 @end

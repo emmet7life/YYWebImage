@@ -234,6 +234,15 @@ typedef NS_OPTIONS(NSUInteger, YYImageCacheType) {
 - (void)getImageDataForKey:(NSString *)key
                  withBlock:(void(^)(NSData * _Nullable imageData))block;
 
+/**
+ Returns the image try convert from the image data.
+ This method may blocks the calling thread until the convert finished.
+ 
+ @param data The image data prepare to be convert.
+ @return The image convert from the data, or nil if convert failed.
+ */
+- (nullable UIImage *)getImageFromData:(NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END

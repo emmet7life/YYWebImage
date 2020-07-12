@@ -14,8 +14,10 @@
 
 #if __has_include(<YYWebImage/YYWebImage.h>)
 #import <YYWebImage/YYImageCache.h>
+#import <YYImage/YYImageCoder.h>
 #else
 #import "YYImageCache.h"
+#import "YYImageCoder.h"
 #endif
 
 @class YYWebImageOperation;
@@ -75,6 +77,12 @@ typedef NS_OPTIONS(NSUInteger, YYWebImageOptions) {
     /// This flag will add the URL to a blacklist (in memory) when the URL fail to be downloaded,
     /// so the library won't keep trying.
     YYWebImageOptionIgnoreFailedURL = 1 << 14,
+    
+    /// Allow multi-frame image invoke transform bloick.
+    YYWebImageOptionAllowAnimatedImageTransform = 1 << 15,
+    
+    /// Allow hit memory by disk key when the transform is not nil.
+    YYWebImageOptionAllowHitMemoryByDiskKeyWithValidTransform = 1 << 16,
 };
 
 /// Indicated where the image came from.
@@ -128,7 +136,7 @@ typedef void(^YYWebImageProgressBlock)(NSInteger receivedSize, NSInteger expecte
  no need to transform the image, just return the `image` parameter.
  
  @example You can clip the image, blur it and add rounded corners with these code:
-    ^(UIImage *image, NSURL *url) {
+    ^(YYImageType imageType, UIImage *image, NSURL *url) {
         // Maybe you need to create an @autoreleasepool to limit memory cost.
         image = [image yy_imageByResizeToSize:CGSizeMake(100, 100) contentMode:UIViewContentModeScaleAspectFill];
         image = [image yy_imageByBlurRadius:20 tintColor:nil tintMode:kCGBlendModeNormal saturation:1.2 maskImage:nil];
@@ -136,11 +144,12 @@ typedef void(^YYWebImageProgressBlock)(NSInteger receivedSize, NSInteger expecte
         return image;
     }
  
+ @param imageType The image format type.
  @param image The image fetched from url.
  @param url   The image url (remote or local file path).
  @return The transformed image.
  */
-typedef UIImage * _Nullable (^YYWebImageTransformBlock)(UIImage *image, NSURL *url);
+typedef UIImage * _Nullable (^YYWebImageTransformBlock)(YYImageType imageType, UIImage *image, NSURL *url);
 
 /**
  The block invoked when image fetch finished or cancelled.

@@ -51,9 +51,8 @@
     }
 
     #ifdef DEBUG
-    CFStringRef imageTypeRef = YYImageTypeToUTType(imageType);
     NSLog(@"YYWebImage >> shouldDecode is %@", shouldDecode ? @"YES" : @"NO");
-    NSLog(@"YYWebImage >> imageType    is %@", (__bridge NSString *)imageTypeRef);
+    NSLog(@"YYWebImage >> imageType    is %@", YYImageTypeGetExtension(imageType));
     NSLog(@"YYWebImage >> targetSize   is %@", NSStringFromCGSize(targetSize));
     #endif
     

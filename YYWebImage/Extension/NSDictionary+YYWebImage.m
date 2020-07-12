@@ -59,6 +59,15 @@
     return beProcessed;
 }
 
+- (Boolean)yy_beTransformed {
+    Boolean beTransformed = NO;
+    NSNumber *num = self[kYYWebImageOptionBeTransformed];
+    if (num) {
+        beTransformed = num.boolValue;
+    }
+    return beTransformed;
+}
+
 - (NSString *)yy_transformIdentifier {
     NSString *transformIdentifier = @"";
     NSValue *value = self[kYYWebImageOptionTransformIdentifier];
@@ -68,27 +77,34 @@
     return transformIdentifier;
 }
 
-- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey
-                    processorIdentifier:(nullable NSString *)identifier {
+- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey processorIdentifier:(nullable NSString *)identifier {
     NSString *tmp = cacheKey;
     
-    CGSize targetSize = self.yy_targetSize;
-    if (targetSize.width > 0 && targetSize.height > 0) {
-        CGFloat targetScale = self.yy_targetScale;
-        NSInteger widthPixel = (NSInteger)(targetSize.width * targetScale);
-        NSInteger heightPixel = (NSInteger)(targetSize.height * targetScale);
-        tmp = [tmp stringByAppendingFormat:@"_%ld_x_%ld", widthPixel, heightPixel];
+    if (self.yy_beProcessed) {
+        CGSize targetSize = self.yy_targetSize;
+        if (targetSize.width > 0 && targetSize.height > 0) {
+            CGFloat targetScale = self.yy_targetScale;
+            NSInteger widthPixel = (NSInteger)(targetSize.width * targetScale);
+            NSInteger heightPixel = (NSInteger)(targetSize.height * targetScale);
+            tmp = [tmp stringByAppendingFormat:@"_%ld_x_%ld", widthPixel, heightPixel];
+        }
+        
+        if (identifier && identifier.length > 0) {
+            tmp = [tmp stringByAppendingFormat:@"_%@", identifier];
+        } else {
+            tmp = [tmp stringByAppendingFormat:@"_DefaultProcessorIdentifier"];
+        }
     }
     
-    if (identifier && identifier.length > 0) {
-        tmp = [tmp stringByAppendingFormat:@"_%@", identifier];
+    if (self.yy_beTransformed) {
+        NSString *transformIdentifier = self.yy_transformIdentifier;
+        if (transformIdentifier && transformIdentifier.length > 0) {
+           tmp = [tmp stringByAppendingFormat:@"_%@", transformIdentifier];
+        } else {
+            tmp = [tmp stringByAppendingFormat:@"_DefaultTransformIdentifier"];
+        }
     }
-    
-    NSString *transformIdentifier = self.yy_transformIdentifier;
-    if (transformIdentifier && transformIdentifier.length > 0) {
-        tmp = [tmp stringByAppendingFormat:@"_%@", transformIdentifier];
-    }
-    
+        
     return tmp;
 }
 

@@ -111,19 +111,40 @@ static int _YYWebImageBackgroundSetterKey;
         if (manager.cache &&
             !(options & YYWebImageOptionUseNSURLCache) &&
             !(options & YYWebImageOptionRefreshImageCache)) {
-            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
-            NSString *cacheKey = originalCacheKey;
+            NSMutableDictionary *_info = [[NSMutableDictionary alloc] init];
+            [info enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+                [_info setValue:obj forKey:key];
+            }];
             
-            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
-            if (info) {
-                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            // if transform is not nil then temporary set kYYWebImageOptionBeTransformed to YES try to hit memory cache
+            if (transform) {
+                [_info setValue:@(YES) forKey:kYYWebImageOptionBeTransformed];
             }
-            imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
             
-            // 2. if failed. then try key type: URL
+            // if processor is not nil then temporary set kYYWebImageOptionBeProcessed to YES try to hit memory cache
+            if (manager.processor) {
+                [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];
+            }
+            
+            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
+            
+            // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
+            NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+            
+            // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!imageFromMemory) {
-                cacheKey = [info yy_cacheKeyForDiskCache:originalCacheKey];
-                imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+                [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
+                memoryCacheKey = [_info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+                imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+            }
+            
+            // try key mode: URL
+            if (!imageFromMemory && (!transform || (options & YYWebImageOptionAllowHitMemoryByDiskKeyWithValidTransform))) {
+                NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:originalCacheKey];
+                if (![memoryCacheKey isEqualToString:diskCacheKey]) {
+                    imageFromMemory = [manager.cache getImageForKey:diskCacheKey withType:YYImageCacheTypeMemory];
+                }
             }
         }
         if (imageFromMemory) {
@@ -316,19 +337,40 @@ static int _YYWebImageBackgroundSetterKey;
         if (manager.cache &&
             !(options & YYWebImageOptionUseNSURLCache) &&
             !(options & YYWebImageOptionRefreshImageCache)) {
-            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
-            NSString *cacheKey = originalCacheKey;
+            NSMutableDictionary *_info = [[NSMutableDictionary alloc] init];
+            [info enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+                [_info setValue:obj forKey:key];
+            }];
             
-            // 1. first try key type: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
-            if (info) {
-                cacheKey = [info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            // if transform is not nil then temporary set kYYWebImageOptionBeTransformed to YES try to hit memory cache
+            if (transform) {
+                [_info setValue:@(YES) forKey:kYYWebImageOptionBeTransformed];
             }
-            imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
             
-            // 2. if failed. then try key type: URL
+            // if processor is not nil then temporary set kYYWebImageOptionBeProcessed to YES try to hit memory cache
+            if (manager.processor) {
+                [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];
+            }
+            
+            NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
+            
+            // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
+            NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+            
+            // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!imageFromMemory) {
-                cacheKey = [info yy_cacheKeyForDiskCache:originalCacheKey];
-                imageFromMemory = [manager.cache getImageForKey:cacheKey withType:YYImageCacheTypeMemory];
+                [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
+                memoryCacheKey = [_info yy_cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+                imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+            }
+            
+            // try key mode: URL
+            if (!imageFromMemory && (!transform || (options & YYWebImageOptionAllowHitMemoryByDiskKeyWithValidTransform))) {
+                NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:originalCacheKey];
+                if (![memoryCacheKey isEqualToString:diskCacheKey]) {
+                    imageFromMemory = [manager.cache getImageForKey:diskCacheKey withType:YYImageCacheTypeMemory];
+                }
             }
         }
         if (imageFromMemory) {

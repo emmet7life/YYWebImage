@@ -15,15 +15,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSDictionary (YYWebImage)
 
-- (YYImageType)yy_imageType;                                                ///< Get stored image format type value.
-- (CGSize)yy_targetSize;                                                    ///> Get stored image target size value.
-- (CGFloat)yy_targetScale;                                                  ///> Get stored image target scale value.
-- (Boolean)yy_shouldDecode;                                                 ///> Get stored image should be decode or not value.
-- (Boolean)yy_beProcessed;                                                  ///> Get stored image has been processed or not  by value YYWebImageProcessor.
-- (NSString *)yy_transformIdentifier;                                       ///> Get stored image transform`s identifier.
-- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey                ///> Get cache key for memory cache. generally format style is URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier].
-                    processorIdentifier:(nullable NSString *)identifier;
-- (NSString *)yy_cacheKeyForDiskCache:(NSString *)cacheKey;                 ///> Get cache key for disk cache. generally format style is URL.
+///< Get stored image format type value.
+- (YYImageType)yy_imageType;
+
+///> Get stored image target size value.
+- (CGSize)yy_targetSize;
+
+///> Get stored image target scale value.
+- (CGFloat)yy_targetScale;
+
+///> Get stored image should be decode or not value.
+- (Boolean)yy_shouldDecode;
+
+///> Get stored image has been processed or not  by value YYWebImageProcessor.
+- (Boolean)yy_beProcessed;
+
+///> Get stored image has been transformed or not  by value transform block.
+- (Boolean)yy_beTransformed;
+
+///> Get stored image transform`s identifier.
+- (NSString *)yy_transformIdentifier;
+
+///> Get cache key for memory cache. generally format style is URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier].
+- (NSString *)yy_cacheKeyForMemoryCache:(NSString *)cacheKey processorIdentifier:(nullable NSString *)identifier;
+
+///> Get cache key for disk cache. generally format style is URL.
+- (NSString *)yy_cacheKeyForDiskCache:(NSString *)cacheKey;
 
 @end
 

@@ -14,6 +14,7 @@ UIKIT_EXTERN NSString *const kYYWebImageOptionTargetSize;            ///> The ta
 UIKIT_EXTERN NSString *const kYYWebImageOptionTargetScale;           ///> The target scale, generally is UIScreen.mainScreen`s scale.
 UIKIT_EXTERN NSString *const kYYWebImageOptionShouldDecode;          ///> Indicate should decode image or not.
 UIKIT_EXTERN NSString *const kYYWebImageOptionBeProcessed;           ///> Indicate whether the image has been processed  or not by YYWebImageProcessor.
+UIKIT_EXTERN NSString *const kYYWebImageOptionBeTransformed;         ///> Indicate whether the image has been transformed  or not by transform block.
 UIKIT_EXTERN NSString *const kYYWebImageOptionTransformIdentifier;   ///> The transform`s identifer. similar with processor`s identifier.
 
 #endif /* YYWebImageConstMacro_h */

@@ -294,4 +294,8 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
     });
 }
 
+- (UIImage *)getImageFromData:(NSData *)data {
+    return [self imageFromData:data];
+}
+
 @end
