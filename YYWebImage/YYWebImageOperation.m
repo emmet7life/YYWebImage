@@ -157,6 +157,16 @@ static void URLInBlackListAdd(NSURL *url) {
 }
 @end
 
+@interface YYWebImageImageSources : NSObject
+
+@property (nullable, nonatomic, strong) UIImage *finalImage;
+@property (nullable, nonatomic, strong) UIImage *originalImage;
+
+@end
+
+@implementation YYWebImageImageSources
+
+@end
 
 @interface YYWebImageOperation() <NSURLConnectionDelegate>
 @property (readwrite, getter=isExecuting) BOOL executing;
@@ -463,12 +473,12 @@ static void URLInBlackListAdd(NSURL *url) {
     }
 }
 
-- (void)_didReceiveImageFromWeb:(NSArray<UIImage *> *)images {
+- (void)_didReceiveImageFromWeb:(YYWebImageImageSources *)imageSources {
     @autoreleasepool {
         [_lock lock];
         if (![self isCancelled]) {
-            UIImage *finalImage = images[0];
-            UIImage *originalImage = images[1];
+            UIImage *finalImage = imageSources.finalImage;
+            UIImage *originalImage = imageSources.originalImage;
             if (_cache) {
                 if (finalImage || (_options & YYWebImageOptionRefreshImageCache)) {
                     [self _cacheImage:finalImage originalImage:originalImage imageData: _data];
@@ -873,7 +883,10 @@ static void URLInBlackListAdd(NSURL *url) {
                     if ([self isCancelled]) return;
                 }
                 
-                [self performSelector:@selector(_didReceiveImageFromWeb:) onThread:[self.class _networkThread] withObject:@[finalImage, originalImage] waitUntilDone:NO];
+                YYWebImageImageSources *imageSources = [YYWebImageImageSources new];
+                imageSources.finalImage = finalImage;
+                imageSources.originalImage = originalImage;
+                [self performSelector:@selector(_didReceiveImageFromWeb:) onThread:[self.class _networkThread] withObject:imageSources waitUntilDone:NO];
             });
             if (![self.request.URL isFileURL] && (self.options & YYWebImageOptionShowNetworkActivity)) {
                 [YYWebImageManager decrementNetworkActivityCount];
