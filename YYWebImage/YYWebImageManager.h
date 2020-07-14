@@ -11,6 +11,7 @@
 
 #import <UIKit/UIKit.h>
 #import "YYWebImageProcessor.h"
+#import "YYWebImageItemOption.h"
 
 #if __has_include(<YYWebImage/YYWebImage.h>)
 #import <YYWebImage/YYImageCache.h>
@@ -204,6 +205,7 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
  
  @param url        The image url (remote or local file path).
  @param options    The options to control image operation.
+ @param itemOption   The options to use or indicate state when get or store image or data to cache.
  @param progress   Progress block which will be invoked on background thread (pass nil to avoid).
  @param transform  Transform block which will be invoked on background thread  (pass nil to avoid).
  @param completion Completion block which will be invoked on background thread  (pass nil to avoid).
@@ -211,7 +213,7 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
  */
 - (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
                                               options:(YYWebImageOptions)options
-                                                 info:(nullable NSDictionary<NSString *, id> *)info
+                                           itemOption:(nullable YYWebImageItemOption *)itemOption
                                              progress:(nullable YYWebImageProgressBlock)progress
                                             transform:(nullable YYWebImageTransformBlock)transform
                                            completion:(nullable YYWebImageCompletionBlock)completion;

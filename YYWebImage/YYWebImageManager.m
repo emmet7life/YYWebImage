@@ -99,7 +99,7 @@ static UIApplication *_YYSharedApplication() {
 
 - (YYWebImageOperation *)requestImageWithURL:(NSURL *)url
                                      options:(YYWebImageOptions)options
-                                        info:(NSDictionary<NSString *, id> *)info
+                                  itemOption:(YYWebImageItemOption *)itemOption
                                     progress:(YYWebImageProgressBlock)progress
                                    transform:(YYWebImageTransformBlock)transform
                                   completion:(YYWebImageCompletionBlock)completion {
@@ -114,7 +114,7 @@ static UIApplication *_YYSharedApplication() {
     
     YYWebImageOperation *operation = [[YYWebImageOperation alloc] initWithRequest:request
                                                                           options:options
-                                                                             info:info
+                                                                       itemOption:itemOption
                                                                             cache:_cache
                                                                          cacheKey:[self cacheKeyForURL:url]
                                                                         processor:_processor

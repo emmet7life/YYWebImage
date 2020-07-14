@@ -8,9 +8,8 @@
 
 #import "YYWebImageProcessor.h"
 #import "YYImageCoder.h"
-#import "YYWebImageConstMacro.h"
 #import "YYWebImageUtils.h"
-#import "NSDictionary+YYWebImage.h"
+#import "YYWebImageItemOption.h"
 #import <UIKit/UIKit.h>
 
 @implementation YYWebImageDefaultProcessor
@@ -19,21 +18,19 @@
     return NSStringFromClass([self class]);
 }
 
-- (UIImage *)processImage:(UIImage *)image options:(NSDictionary<NSString *, id> *)info {
+- (UIImage *)processImage:(UIImage *)image shouldDecode:(Boolean)shouldDecode itemOption:(YYWebImageItemOption *)itemOption {
     return image;
 }
 
-- (UIImage *)processData:(NSData *)data options:(NSDictionary<NSString *, id> *)info {
-    YYImageType imageType = YYImageTypeOther;
+- (UIImage *)processData:(NSData *)data shouldDecode:(Boolean)shouldDecode itemOption:(YYWebImageItemOption *)itemOption {
+    YYImageType imageType = YYImageTypeUnknown;
     CGSize targetSize = CGSizeZero;
     CGFloat targetScale = 0;
-    Boolean shouldDecode = YES;// default YES
     
-    if (info) {
-        imageType = info.yy_imageType;
-        targetSize = info.yy_targetSize;
-        targetScale = info.yy_targetScale;
-        shouldDecode = info.yy_shouldDecode;
+    if (itemOption) {
+        imageType = itemOption.imageType;
+        targetSize = itemOption.targetSize;
+        targetScale = itemOption.targetScale;
     }
     
     // convert point unit to pixel unit if needed
@@ -46,7 +43,7 @@
         targetSize = CGSizeMake(widthPixel, heightPixel);
     }
     
-    if (imageType == YYImageTypeOther) {
+    if (imageType == YYImageTypeOther || imageType == YYImageTypeUnknown) {
         imageType = YYImageDetectType((__bridge CFDataRef)data);
     }
 

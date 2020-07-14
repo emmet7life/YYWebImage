@@ -11,13 +11,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class YYWebImageItemOption;
+
 // 图片处理器
 @protocol YYWebImageProcessor <NSObject>
 
 @required
 - (NSString *)identifier;
-- (nullable UIImage *)processImage:(UIImage *)image options: (nullable NSDictionary<NSString *, id> *)info;
-- (nullable UIImage *)processData:(NSData *)data options: (nullable NSDictionary<NSString *, id> *)info;
+- (nullable UIImage *)processImage:(UIImage *)image shouldDecode:(Boolean)shouldDecode itemOption:(nullable YYWebImageItemOption *)itemOption;
+- (nullable UIImage *)processData:(NSData *)data shouldDecode:(Boolean)shouldDecode itemOption:(nullable YYWebImageItemOption *)itemOption;
 
 @end
 

@@ -88,12 +88,13 @@
     
     CGFloat scale = 0.2;//UIScreen.mainScreen.scale;
     CGSize targetSize = CGSizeZero;// CGSizeMake(_webImageView.size.width * scale, _webImageView.size.height * scale);
-    NSDictionary<NSString *, id> *info = @{kYYWebImageOptionTargetSize: @(targetSize)};
+    YYWebImageItemOption *itemOption = [[YYWebImageItemOption alloc] init];
+    itemOption.targetSize = targetSize;
 
     [_webImageView yy_setImageWithURL:url
                           placeholder:nil
                           options:YYWebImageOptionProgressiveBlur | YYWebImageOptionShowNetworkActivity | YYWebImageOptionSetImageWithFadeAnimation
-                             info: info
+                         itemOption: itemOption
                           progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                               if (expectedSize > 0 && receivedSize > 0) {
                                   CGFloat progress = (CGFloat)receivedSize / expectedSize;

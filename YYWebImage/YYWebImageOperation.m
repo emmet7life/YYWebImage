@@ -13,8 +13,6 @@
 #import "UIImage+YYWebImage.h"
 #import <ImageIO/ImageIO.h>
 #import <libkern/OSAtomic.h>
-#import "YYWebImageConstMacro.h"
-#import "NSDictionary+YYWebImage.h"
 
 #if __has_include(<YYImage/YYImage.h>)
 #import <YYImage/YYImage.h>
@@ -243,15 +241,15 @@ static void URLInBlackListAdd(NSURL *url) {
 
 - (instancetype)init {
     @throw [NSException exceptionWithName:@"YYWebImageOperation init error" reason:@"YYWebImageOperation must be initialized with a request. Use the designated initializer to init." userInfo:nil];
-    return [self initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@""]] options:0 info:nil cache:nil cacheKey:nil processor:nil progress:nil transform:nil completion:nil];
+    return [self initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@""]] options:0 itemOption:nil cache:nil cacheKey:nil processor:nil progress:nil transform:nil completion:nil];
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request
                         options:(YYWebImageOptions)options
-                           info:(NSDictionary<NSString *, id> *)info
+                     itemOption:(YYWebImageItemOption *)itemOption
                           cache:(YYImageCache *)cache
                        cacheKey:(NSString *)cacheKey
-                      processor:(nullable id)processor
+                      processor:(id<YYWebImageProcessor>)processor
                        progress:(YYWebImageProgressBlock)progress
                       transform:(YYWebImageTransformBlock)transform
                      completion:(YYWebImageCompletionBlock)completion {
@@ -272,10 +270,7 @@ static void URLInBlackListAdd(NSURL *url) {
     _cancelled = NO;
     _taskID = UIBackgroundTaskInvalid;
     _lock = [NSRecursiveLock new];
-    _info = [[NSMutableDictionary alloc] init];
-    [info enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        [_info setValue:obj forKey:key];
-    }];
+    _itemOption = itemOption;
     return self;
 }
 
@@ -331,25 +326,25 @@ static void URLInBlackListAdd(NSURL *url) {
             
             // if processor is not nil then temporary set kYYWebImageOptionBeProcessed to YES try to hit memory cache
             if (self.processor) {
-                [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];
+                _itemOption.beProcessed = YES;
             }
             
             // if transform is not nil then temporary set kYYWebImageOptionBeTransformed to YES try to hit memory cache
             if (self.transform) {
-                [_info setValue:@(YES) forKey:kYYWebImageOptionBeTransformed];
+                _itemOption.beTransformed = YES;
             }
             
             // diffrent cache type use diffrent cache key
-            NSString *memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
-            NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:_cacheKey];
+            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+            NSString *diskCacheKey = [_itemOption cacheKeyForDiskCache:_cacheKey];
             
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
             UIImage *image = [_cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
 
             // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!image) {
-                [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
-                memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+                _itemOption.beProcessed = NO;
+                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
                 image = [_cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             }
             
@@ -370,9 +365,9 @@ static void URLInBlackListAdd(NSURL *url) {
                 return;
             }
             
-            // reset kYYWebImageOptionBeProcessed and kYYWebImageOptionBeTransformed value
-            [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
-            [_info setValue:@(NO) forKey:kYYWebImageOptionBeTransformed];
+            // reset beProcessed and beTransformed to NO
+            _itemOption.beProcessed = NO;
+            _itemOption.beTransformed = NO;
             
             if (!(_options & YYWebImageOptionIgnoreDiskCache)) {
                 __weak typeof(self) _self = self;
@@ -383,9 +378,9 @@ static void URLInBlackListAdd(NSURL *url) {
                     if (image) {
                         // add to memory cache
                         NSString *cacheKey = diskCacheKey;
-                        if (self.info.yy_beProcessed || self.info.yy_beTransformed) {
+                        if (self.itemOption.beProcessed || self.itemOption.beTransformed) {
                             // generate a new memoryCacheKey because of information has changed
-                            NSString *memoryCacheKey = [self.info yy_cacheKeyForMemoryCache:self.cacheKey processorIdentifier:self.processor.identifier];
+                            NSString *memoryCacheKey = [self.itemOption cacheKeyForMemoryCache:self.cacheKey processorIdentifier:self.processor.identifier];
                             cacheKey = memoryCacheKey;
                         }
                         [self.cache setImage:image imageData:nil forKey:cacheKey withType:YYImageCacheTypeMemory];
@@ -427,6 +422,7 @@ static void URLInBlackListAdd(NSURL *url) {
         [_lock lock];
         if (![self isCancelled]) {
             _connection = [[NSURLConnection alloc] initWithRequest:_request delegate:[_YYWebImageWeakProxy proxyWithTarget:self]];
+            [_connection start];
             if (![_request.URL isFileURL] && (_options & YYWebImageOptionShowNetworkActivity)) {
                 [YYWebImageManager incrementNetworkActivityCount];
             }
@@ -501,25 +497,24 @@ static void URLInBlackListAdd(NSURL *url) {
 
 - (nullable UIImage *)_getImageFromDisk:(NSString *)cacheKey {
     UIImage *image;
-    YYImageType imageType = YYImageTypeOther;
+    YYImageType imageType = YYImageTypeUnknown;
     BOOL hasAnimation = NO;
     
     NSData *data = (id)[_cache objectForKey:cacheKey withType:YYImageCacheTypeDisk];
     if (data) {
         imageType = YYImageDetectType((__bridge CFDataRef)data);
-        BOOL shouldDecode = (self.options & YYWebImageOptionIgnoreImageDecoding) == 0;
-        BOOL allowAnimation = (self.options & YYWebImageOptionIgnoreAnimatedImage) == 0;
-        [_info setValue:@(shouldDecode) forKey:kYYWebImageOptionShouldDecode];
-        [_info setValue:@(imageType) forKey:kYYWebImageOptionImageType];
+        BOOL shouldDecode = (_options & YYWebImageOptionIgnoreImageDecoding) == 0;
+        BOOL allowAnimation = (_options & YYWebImageOptionIgnoreAnimatedImage) == 0;
+        _itemOption.imageType = imageType;
         switch (imageType) {
             case YYImageTypeJPEG:
             case YYImageTypePNG: {
                 // try use processor handler
                 if (self.processor) {
-                    UIImage * processedImage = [self.processor processData:data options:_info];
+                    UIImage * processedImage = [_processor processData:data shouldDecode:shouldDecode itemOption:_itemOption];
                     if (processedImage) {
                         image = processedImage;
-                        [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];
+                        _itemOption.beProcessed = YES;
                     }
                 }
             } break;
@@ -529,7 +524,7 @@ static void URLInBlackListAdd(NSURL *url) {
         if ([self isCancelled]) return nil;
         
         if (!image) {
-            image = [self.cache getImageFromData:data];
+            image = [_cache getImageFromData:data];
         }
         
         if (allowAnimation) {
@@ -544,12 +539,12 @@ static void URLInBlackListAdd(NSURL *url) {
     if ([self isCancelled]) return nil;
     
     // transform image if needed.
-    Boolean allowAnimatedImageTransform = (self.options & YYWebImageOptionAllowAnimatedImageTransform);
-    if (self.transform && image && (!hasAnimation || allowAnimatedImageTransform)) {
-        UIImage *newImage = self.transform(imageType, image, self.request.URL);
+    Boolean allowAnimatedImageTransform = (_options & YYWebImageOptionAllowAnimatedImageTransform);
+    if (_transform && image && (!hasAnimation || allowAnimatedImageTransform)) {
+        UIImage *newImage = _transform(imageType, image, _request.URL);
         if (newImage != image) {
             image = newImage;
-            [_info setValue:@(YES) forKey:kYYWebImageOptionBeTransformed];
+            _itemOption.beTransformed = YES;
         }
         if ([self isCancelled]) return nil;
     }
@@ -562,10 +557,10 @@ static void URLInBlackListAdd(NSURL *url) {
     if (!originalCacheKey || (finalImage == nil && originalImage == nil && imageData.length == 0)) return;
     
     // diffrent cache type use diffrent cache key
-    NSString *diskCacheKey = [_info yy_cacheKeyForDiskCache:_cacheKey];
+    NSString *diskCacheKey = [_itemOption cacheKeyForDiskCache:_cacheKey];
     NSString *memoryCacheKey = diskCacheKey;
-    if (_info.yy_beProcessed || _info.yy_beTransformed) {
-        memoryCacheKey = [_info yy_cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+    if (_itemOption.beProcessed || _itemOption.beTransformed) {
+        memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
     }
     
     NSData *data = _data;
@@ -803,10 +798,9 @@ static void URLInBlackListAdd(NSURL *url) {
                 /*
                  append info.
                  */
-                [_info setValue:@(imageType) forKey:kYYWebImageOptionImageType];
-                [_info setValue:@(shouldDecode) forKey:kYYWebImageOptionShouldDecode];
-                [_info setValue:@(NO) forKey:kYYWebImageOptionBeProcessed];
-                [_info setValue:@(NO) forKey:kYYWebImageOptionBeTransformed];
+                self.itemOption.imageType = imageType;
+                self.itemOption.beProcessed = NO;
+                self.itemOption.beTransformed = NO;
                 
                 UIImage *finalImage;
                 UIImage *originalImage;
@@ -816,10 +810,10 @@ static void URLInBlackListAdd(NSURL *url) {
                  try handle by processor.
                  */
                 if (self.processor) {
-                    UIImage * processedImage = [self.processor processData:self.data options:_info];
+                    UIImage * processedImage = [self.processor processData:self.data shouldDecode:shouldDecode itemOption:self.itemOption];
                     if (processedImage) {
                         finalImage = processedImage;
-                        [_info setValue:@(YES) forKey:kYYWebImageOptionBeProcessed];
+                        self.itemOption.beProcessed = YES;
                     }
                 }
                 
@@ -874,7 +868,7 @@ static void URLInBlackListAdd(NSURL *url) {
                     UIImage *newImage = self.transform(imageType, finalImage, self.request.URL);
                     if (newImage != finalImage) {
                         finalImage = newImage;
-                        [_info setValue:@(YES) forKey:kYYWebImageOptionBeTransformed];
+                        self.itemOption.beTransformed = YES;
                     }
                     if ([self isCancelled]) return;
                 }

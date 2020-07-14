@@ -21,7 +21,7 @@
         maxPixelSize = 99999999;// a big value, can not set to CGFLOAT_MAX.
     }
     
-    if (imageType == YYImageTypeOther) {
+    if (imageType == YYImageTypeOther || imageType == YYImageTypeUnknown) {
         imageType = YYImageDetectType((__bridge CFDataRef)data);
     }
     

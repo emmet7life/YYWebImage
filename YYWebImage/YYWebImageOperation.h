@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly)           NSString          *cacheKey; ///< The image cache key.
 @property (nonatomic, readonly)                   YYWebImageOptions options;   ///< The operation's option.
 @property (nullable, nonatomic, strong, readonly) id<YYWebImageProcessor> processor;                ///< The processor
-@property (nullable, nonatomic, strong, readonly) NSMutableDictionary<NSString *, id> *info;        ///< The dict info
+@property (nullable, nonatomic, strong, readonly) YYWebImageItemOption *itemOption;                 ///< The item option
 
 /**
  Whether the URL connection should consult the credential storage for authenticating 
@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param request    The Image request. This value should not be nil.
  @param options    A mask to specify options to use for this operation.
+ @param itemOption   The options to use or indicate state when get or store image or data to cache.
  @param cache      An image cache. Pass nil to avoid image cache.
  @param cacheKey   An image cache key. Pass nil to avoid image cache.
  @param progress   A block invoked in image fetch progress.
@@ -85,10 +86,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithRequest:(NSURLRequest *)request
                         options:(YYWebImageOptions)options
-                           info:(nullable NSDictionary<NSString *, id> *)info
+                     itemOption:(nullable YYWebImageItemOption *)itemOption
                           cache:(nullable YYImageCache *)cache
                        cacheKey:(nullable NSString *)cacheKey
-                      processor:(nullable id)processor
+                      processor:(nullable id<YYWebImageProcessor>)processor
                        progress:(nullable YYWebImageProgressBlock)progress
                       transform:(nullable YYWebImageTransformBlock)transform
                      completion:(nullable YYWebImageCompletionBlock)completion NS_DESIGNATED_INITIALIZER;

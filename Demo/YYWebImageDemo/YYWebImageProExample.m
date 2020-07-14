@@ -104,10 +104,10 @@
 }
 
 - (void)fetchImage:(CGSize)targetSize withTransform:(YYWebImageTransformBlock)transform {
-    NSDictionary<NSString *, id> *info = @{
-//        kYYWebImageOptionTransformIdentifier:[NSValue valueWithPointer:@"CornerTransform"],// if not set and transform block is not nil kit will use default value
-        kYYWebImageOptionTargetSize:@(targetSize)
-    };
+    NSString *transformIdentifier = [NSString stringWithFormat:@"Transform%@", NSStringFromCGSize(targetSize)];
+    YYWebImageItemOption *itemOption = [[YYWebImageItemOption alloc] init];
+    itemOption.targetSize = targetSize;
+    itemOption.transformIdentifier = transformIdentifier;
     
 //    NSString *imageUrl = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1594293055688&di=6c790e2f4d899d2f9b68f242d5c29987&imgtype=0&src=http%3A%2F%2Ft8.baidu.com%2Fit%2Fu%3D2247852322%2C986532796%26fm%3D79%26app%3D86%26f%3DJPEG%3Fw%3D1280%26h%3D853";// jpg
     NSString *imageUrl = @"http://img.manhua.weibo.com/comic/23/71323/315749/001_315749_shard_1.webp";// webp
@@ -118,7 +118,7 @@
     [_imageView yy_setImageWithURL:url
                           placeholder:nil
                           options:YYWebImageOptionShowNetworkActivity | YYWebImageOptionSetImageWithFadeAnimation | YYWebImageOptionAllowHitMemoryByDiskKeyWithValidTransform
-                             info:info
+                       itemOption:itemOption
                          progress:^(NSInteger receivedSize, NSInteger expectedSize) {
 //                            NSLog(@"receivedSize is %ld, expectedSize is %ld", (long)receivedSize, (long)expectedSize);
                          }
