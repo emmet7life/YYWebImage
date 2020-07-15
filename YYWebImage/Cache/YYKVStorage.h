@@ -268,6 +268,8 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  */
 - (nullable NSData *)getItemValueForKey:(NSString *)key;
 
+- (nullable NSString *)getItemPathForKey:(NSString *)key;
+
 /**
  Get items with an array of keys.
  
