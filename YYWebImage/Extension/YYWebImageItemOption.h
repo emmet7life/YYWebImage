@@ -18,12 +18,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) CGFloat targetScale;              ///> The target scale, generally is UIScreen.mainScreen`s scale.
 @property (nonatomic, assign) Boolean beProcessed;              ///> Indicate whether the image has been processed  or not by YYWebImageProcessor.
 @property (nonatomic, assign) Boolean beTransformed;            ///> Indicate whether the image has been transformed  or not by transform block.
+@property (nonatomic, strong) NSString *processorIdentifier;    ///> The processor`s identifer..
 @property (nonatomic, strong) NSString *transformIdentifier;    ///> The transform`s identifer. similar with processor`s identifier.
 
 /**
  get cache key for memory cache. generally format style is URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier].
  */
-- (NSString *)cacheKeyForMemoryCache:(NSString *)cacheKey processorIdentifier:(nullable NSString *)identifier;
+- (NSString *)cacheKeyForMemoryCache:(NSString *)cacheKey;
 
 /**
  get cache key for disk cache. generally format style is URL.

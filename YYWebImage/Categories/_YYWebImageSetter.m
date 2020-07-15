@@ -21,6 +21,7 @@ const NSTimeInterval _YYWebImageProgressiveFadeTime = 0.4;
 @implementation _YYWebImageSetter {
     dispatch_semaphore_t _lock;
     NSURL *_imageURL;
+    YYWebImageItemOption *_itemOption;
     NSOperation *_operation;
     int32_t _sentinel;
 }
@@ -38,9 +39,17 @@ const NSTimeInterval _YYWebImageProgressiveFadeTime = 0.4;
     return imageURL;
 }
 
+- (YYWebImageItemOption *)itemOption {
+    dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
+    YYWebImageItemOption *itemOption = _itemOption;
+    dispatch_semaphore_signal(_lock);
+    return itemOption;
+}
+
 - (void)dealloc {
     OSAtomicIncrement32(&_sentinel);
     [_operation cancel];
+    _itemOption = nil;
 }
 
 - (int32_t)setOperationWithSentinel:(int32_t)sentinel
@@ -89,6 +98,12 @@ const NSTimeInterval _YYWebImageProgressiveFadeTime = 0.4;
     sentinel = OSAtomicIncrement32(&_sentinel);
     dispatch_semaphore_signal(_lock);
     return sentinel;
+}
+
+- (void)setItemOption:(YYWebImageItemOption *)itemOption {
+    dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
+    _itemOption = itemOption;
+    dispatch_semaphore_signal(_lock);
 }
 
 + (dispatch_queue_t)setterQueue {

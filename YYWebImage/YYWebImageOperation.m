@@ -345,7 +345,7 @@ static void URLInBlackListAdd(NSURL *url) {
             }
             
             // diffrent cache type use diffrent cache key
-            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey];
             NSString *diskCacheKey = [_itemOption cacheKeyForDiskCache:_cacheKey];
             
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
@@ -354,7 +354,7 @@ static void URLInBlackListAdd(NSURL *url) {
             // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!image) {
                 _itemOption.beProcessed = NO;
-                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey];
                 image = [_cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             }
             
@@ -390,7 +390,7 @@ static void URLInBlackListAdd(NSURL *url) {
                         NSString *cacheKey = diskCacheKey;
                         if (self.itemOption.beProcessed || self.itemOption.beTransformed) {
                             // generate a new memoryCacheKey because of information has changed
-                            NSString *memoryCacheKey = [self.itemOption cacheKeyForMemoryCache:self.cacheKey processorIdentifier:self.processor.identifier];
+                            NSString *memoryCacheKey = [self.itemOption cacheKeyForMemoryCache:self.cacheKey];
                             cacheKey = memoryCacheKey;
                         }
                         [self.cache setImage:image imageData:nil forKey:cacheKey withType:YYImageCacheTypeMemory];
@@ -570,7 +570,7 @@ static void URLInBlackListAdd(NSURL *url) {
     NSString *diskCacheKey = [_itemOption cacheKeyForDiskCache:_cacheKey];
     NSString *memoryCacheKey = diskCacheKey;
     if (_itemOption.beProcessed || _itemOption.beTransformed) {
-        memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey processorIdentifier:_processor.identifier];
+        memoryCacheKey = [_itemOption cacheKeyForMemoryCache:_cacheKey];
     }
     
     NSData *data = _data;

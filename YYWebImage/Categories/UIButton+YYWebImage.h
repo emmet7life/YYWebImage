@@ -33,6 +33,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSURL *)yy_imageURLForState:(UIControlState)state;
 
 /**
+ Current image memory cache key for the specified state.
+ @return The image memory cache key, or nil.
+*/
+- (nullable NSString *)yy_imageMemoryCacheKeyForState:(UIControlState)state;
+
+/**
+ Current image disk cache key for the specified state.
+ @return The image disk cache key, or nil.
+*/
+- (nullable NSString *)yy_imageDiskCacheKeyForState:(UIControlState)state;
+
+/**
  Set the button's image with a specified URL for the specified state.
  
  @param imageURL    The image url (remote or local file path).
@@ -227,6 +239,26 @@ NS_ASSUME_NONNULL_BEGIN
  @param state The state that uses the specified image.
  */
 - (void)yy_cancelBackgroundImageRequestForState:(UIControlState)state;
+
+/**
+ Remove all cache for specified state. both memory cache and disk cache.
+ */
+- (void)yy_removeAllCacheForState:(UIControlState)state;
+
+/**
+ Remove memory cache for specified state.
+ */
+- (void)yy_removeMemoryCache:(UIControlState)state;
+
+/**
+ Remove disk cache for specified state.
+ */
+- (void)yy_removeDiskCache:(UIControlState)state;
+
+/**
+ Remove cache with specified cache type for specified state.
+ */
+- (void)yy_removeCache:(YYImageCacheType)cacheType forState:(UIControlState)state;
 
 @end
 

@@ -204,6 +204,54 @@ typedef void (^YYWebImageCompletionBlock)(UIImage * _Nullable image,
  Creates and returns a new image operation, the operation will start immediately.
  
  @param url        The image url (remote or local file path).
+ @param targetSize   The target size.
+ @param completion Completion block which will be invoked on main thread.
+ @return A new image operation.
+ */
+- (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                           targetSize:(CGSize)targetSize
+                                           completion:(nullable YYWebImageCompletionBlock)completion;
+
+/**
+ Creates and returns a new image operation, the operation will start immediately.
+ 
+ @param url        The image url (remote or local file path).
+ @param options    The options to control image operation.
+ @return A new image operation.
+ */
+- (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                              options:(YYWebImageOptions)options;
+
+/**
+ Creates and returns a new image operation, the operation will start immediately.
+ 
+ @param url        The image url (remote or local file path).
+ @param options    The options to control image operation.
+ @param completion Completion block which will be invoked on main thread.
+ @return A new image operation.
+ */
+- (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                              options:(YYWebImageOptions)options
+                                           completion:(nullable YYWebImageCompletionBlock)completion;
+
+/**
+ Creates and returns a new image operation, the operation will start immediately.
+ 
+ @param url        The image url (remote or local file path).
+ @param options    The options to control image operation.
+ @param targetSize   The target size.
+ @param completion Completion block which will be invoked on main thread.
+ @return A new image operation.
+ */
+- (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                              options:(YYWebImageOptions)options
+                                           targetSize:(CGSize)targetSize
+                                           completion:(nullable YYWebImageCompletionBlock)completion;
+
+/**
+ Creates and returns a new image operation, the operation will start immediately.
+ 
+ @param url        The image url (remote or local file path).
  @param options    The options to control image operation.
  @param itemOption   The options to use or indicate state when get or store image or data to cache.
  @param progress   Progress block which will be invoked on background thread (pass nil to avoid).

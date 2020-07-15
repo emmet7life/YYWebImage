@@ -98,6 +98,44 @@ static UIApplication *_YYSharedApplication() {
 }
 
 - (YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                  targetSize:(CGSize)targetSize
+                                  completion:(YYWebImageCompletionBlock)completion {
+    return [self requestImageWithURL:url options:kNilOptions targetSize:targetSize completion:completion];
+}
+
+- (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                              options:(YYWebImageOptions)options {
+    return [self requestImageWithURL:url options:options completion:nil];
+}
+
+- (nullable YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                              options:(YYWebImageOptions)options
+                                           completion:(nullable YYWebImageCompletionBlock)completion {
+    return [self requestImageWithURL:url options:options targetSize:CGSizeZero completion:completion];
+}
+
+- (YYWebImageOperation *)requestImageWithURL:(NSURL *)url
+                                     options:(YYWebImageOptions)options
+                                  targetSize:(CGSize)targetSize
+                                  completion:(YYWebImageCompletionBlock)completion {
+    YYWebImageItemOption *itemOption = [YYWebImageItemOption new];
+    itemOption.targetSize = targetSize;
+    return [self requestImageWithURL:url
+                             options:options
+                          itemOption:itemOption
+                            progress:nil
+                           transform:nil
+                          completion:^(UIImage * _Nullable image, NSURL * _Nonnull url, YYWebImageFromType from, YYWebImageStage stage, NSError * _Nullable error) {
+        if (!completion) { return; }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion(image, url, from, stage, error);
+            }
+        });
+    }];
+}
+
+- (YYWebImageOperation *)requestImageWithURL:(NSURL *)url
                                      options:(YYWebImageOptions)options
                                   itemOption:(YYWebImageItemOption *)itemOption
                                     progress:(YYWebImageProgressBlock)progress

@@ -41,6 +41,7 @@ extern const NSTimeInterval _YYWebImageProgressiveFadeTime;
 @interface _YYWebImageSetter : NSObject
 /// Current image url.
 @property (nullable, nonatomic, readonly) NSURL *imageURL;
+@property (nullable, nonatomic, readonly) YYWebImageItemOption *itemOption;
 /// Current sentinel.
 @property (nonatomic, readonly) int32_t sentinel;
 
@@ -59,6 +60,9 @@ extern const NSTimeInterval _YYWebImageProgressiveFadeTime;
 
 /// Cancel and return a sentinel value. The imageURL will be set to new value.
 - (int32_t)cancelWithNewURL:(nullable NSURL *)imageURL;
+
+/// set itemOption
+- (void)setItemOption:(YYWebImageItemOption * _Nullable)itemOption;
 
 /// A queue to set operation.
 + (dispatch_queue_t)setterQueue;

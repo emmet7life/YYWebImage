@@ -24,7 +24,7 @@
     return _targetScale;
 }
 
-- (NSString *)cacheKeyForMemoryCache:(NSString *)cacheKey processorIdentifier:(NSString *)identifier {
+- (NSString *)cacheKeyForMemoryCache:(NSString *)cacheKey {
     NSString *tmp = cacheKey;
     
     if (self.beProcessed) {
@@ -36,8 +36,9 @@
             tmp = [tmp stringByAppendingFormat:@"_%ld_x_%ld", widthPixel, heightPixel];
         }
         
-        if (identifier && identifier.length > 0) {
-            tmp = [tmp stringByAppendingFormat:@"_%@", identifier];
+        NSString *processorIdentifier = self.processorIdentifier;
+        if (processorIdentifier && processorIdentifier.length > 0) {
+            tmp = [tmp stringByAppendingFormat:@"_%@", processorIdentifier];
         } else {
             tmp = [tmp stringByAppendingFormat:@"_DefaultProcessorIdentifier"];
         }

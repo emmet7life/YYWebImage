@@ -110,6 +110,8 @@ static int _YYWebImageBackgroundSetterKey;
             _itemOption = [[YYWebImageItemOption alloc] init];
         }
         
+        [setter setItemOption:_itemOption];
+        
         // get the image from memory as quickly as possible
         UIImage *imageFromMemory = nil;
         if (manager.cache &&
@@ -127,14 +129,18 @@ static int _YYWebImageBackgroundSetterKey;
             
             NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
             
+            if (manager.processor) {
+                _itemOption.processorIdentifier = manager.processor.identifier;
+            }
+            
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
-            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
             imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             
             // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!imageFromMemory) {
                 _itemOption.beProcessed = NO;
-                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
                 imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             }
             
@@ -158,6 +164,9 @@ static int _YYWebImageBackgroundSetterKey;
         if (!(options & YYWebImageOptionIgnorePlaceHolder)) {
             [self setImage:placeholder forState:state.integerValue];
         }
+        
+        _itemOption.beProcessed = NO;
+        _itemOption.beTransformed = NO;
         
         __weak typeof(self) _self = self;
         dispatch_async([_YYWebImageSetter setterQueue], ^{
@@ -204,6 +213,28 @@ static int _YYWebImageBackgroundSetterKey;
     _YYWebImageSetterDicForButton *dic = objc_getAssociatedObject(self, &_YYWebImageSetterKey);
     _YYWebImageSetter *setter = [dic setterForState:UIControlStateSingle(state)];
     return setter.imageURL;
+}
+
+- (NSString *)yy_imageMemoryCacheKeyForState:(UIControlState)state {
+    _YYWebImageSetterDicForButton *dic = objc_getAssociatedObject(self, &_YYWebImageSetterKey);
+    _YYWebImageSetter *setter = [dic setterForState:UIControlStateSingle(state)];
+    YYWebImageItemOption *itemOption = setter.itemOption;
+    if (itemOption && setter.imageURL) {
+        NSString *cacheKey = setter.imageURL.absoluteString;
+        return [itemOption cacheKeyForMemoryCache:cacheKey];
+    }
+    return nil;
+}
+
+- (NSString *)yy_imageDiskCacheKeyForState:(UIControlState)state {
+    _YYWebImageSetterDicForButton *dic = objc_getAssociatedObject(self, &_YYWebImageSetterKey);
+    _YYWebImageSetter *setter = [dic setterForState:UIControlStateSingle(state)];
+    YYWebImageItemOption *itemOption = setter.itemOption;
+    if (itemOption && setter.imageURL) {
+        NSString *cacheKey = setter.imageURL.absoluteString;
+        return [itemOption cacheKeyForDiskCache:cacheKey];
+    }
+    return nil;
 }
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
@@ -336,6 +367,8 @@ static int _YYWebImageBackgroundSetterKey;
             _itemOption = [[YYWebImageItemOption alloc] init];
         }
         
+        [setter setItemOption:_itemOption];
+        
         // get the image from memory as quickly as possible
         UIImage *imageFromMemory = nil;
         if (manager.cache &&
@@ -353,14 +386,18 @@ static int _YYWebImageBackgroundSetterKey;
             
             NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
             
+            if (manager.processor) {
+                _itemOption.processorIdentifier = manager.processor.identifier;
+            }
+            
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
-            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
             imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             
             // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!imageFromMemory) {
                 _itemOption.beProcessed = NO;
-                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
                 imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             }
             
@@ -384,6 +421,9 @@ static int _YYWebImageBackgroundSetterKey;
         if (!(options & YYWebImageOptionIgnorePlaceHolder)) {
             [self setBackgroundImage:placeholder forState:state.integerValue];
         }
+        
+        _itemOption.beProcessed = NO;
+        _itemOption.beTransformed = NO;
         
         __weak typeof(self) _self = self;
         dispatch_async([_YYWebImageSetter setterQueue], ^{
@@ -523,6 +563,35 @@ static int _YYWebImageBackgroundSetterKey;
 - (void)yy_cancelBackgroundImageRequestForState:(UIControlState)state {
     for (NSNumber *num in UIControlStateMulti(state)) {
         [self _yy_cancelBackgroundImageRequestForSingleState:num];
+    }
+}
+
+- (void)yy_removeAllCacheForState:(UIControlState)state {
+    [self yy_removeMemoryCache:state];
+    [self yy_removeDiskCache:state];
+}
+
+- (void)yy_removeMemoryCache:(UIControlState)state {
+    [self yy_removeCache:YYImageCacheTypeMemory forState:state];
+}
+
+- (void)yy_removeDiskCache:(UIControlState)state {
+    [self yy_removeCache:YYImageCacheTypeDisk forState:state];
+}
+
+- (void)yy_removeCache:(YYImageCacheType)cacheType forState:(UIControlState)state {
+    if (cacheType & YYImageCacheTypeMemory) {
+        NSString *memoryCacheKey = [self yy_imageMemoryCacheKeyForState:state];
+        if (YYWebImageManager.sharedManager.cache && memoryCacheKey) {
+            [YYWebImageManager.sharedManager.cache removeImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+        }
+    }
+    
+    if (cacheType & YYImageCacheTypeDisk) {
+        NSString *diskCacheKey = [self yy_imageDiskCacheKeyForState:state];
+        if (YYWebImageManager.sharedManager.cache && diskCacheKey) {
+            [YYWebImageManager.sharedManager.cache removeImageForKey:diskCacheKey withType:YYImageCacheTypeDisk];
+        }
     }
 }
 

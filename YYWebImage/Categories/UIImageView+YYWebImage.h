@@ -36,6 +36,25 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) NSURL *yy_imageURL;
 
 /**
+ Associate memory cache key.
+ */
+@property (nullable, nonatomic, strong, readonly) NSString *yy_memoryCacheKey;
+
+/**
+ Associate disk cache key.
+ */
+@property (nullable, nonatomic, strong, readonly) NSString *yy_diskCacheKey;
+
+/**
+ Set the view's `image` with a specified URL.
+ 
+ @param imageURL    The image url (remote or local file path).
+ @param placeholder The image to be set initially, until the image request finishes.
+ */
+- (void)yy_setImageWithURL:(nullable NSURL *)imageURL
+               placeholder:(nullable UIImage *)placeholder;
+
+/**
  Set the view's `image` with a specified URL.
  
  @param imageURL    The image url (remote or local file path).
@@ -45,6 +64,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)yy_setImageWithURL:(nullable NSURL *)imageURL
                placeholder:(nullable UIImage *)placeholder
                 itemOption:(nullable YYWebImageItemOption *)itemOption;
+
+/**
+ Set the view's `image` with a specified URL.
+ 
+ @param imageURL The image url (remote or local file path).
+ @param options  The options to use when request the image.
+ */
+- (void)yy_setImageWithURL:(nullable NSURL *)imageURL
+                   options:(YYWebImageOptions)options;
 
 /**
  Set the view's `image` with a specified URL.
@@ -117,7 +145,25 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)yy_cancelCurrentImageRequest;
 
+/**
+ Remove all cache. both memory cache and disk cache.
+ */
+- (void)yy_removeAllCache;
 
+/**
+ Remove memory cache.
+ */
+- (void)yy_removeMemoryCache;
+
+/**
+ Remove disk cache.
+ */
+- (void)yy_removeDiskCache;
+
+/**
+ Remove cache with specified cache type.
+ */
+- (void)yy_removeCache:(YYImageCacheType)cacheType;
 
 #pragma mark - highlight image
 
@@ -129,6 +175,16 @@ NS_ASSUME_NONNULL_BEGIN
  the highlighted image and image URL.
  */
 @property (nullable, nonatomic, strong) NSURL *yy_highlightedImageURL;
+
+/**
+ Associate highlighted memory cache key.
+ */
+@property (nullable, nonatomic, strong, readonly) NSString *yy_highlightedMemoryCacheKey;
+
+/**
+ Associate highlighted disk cache key.
+ */
+@property (nullable, nonatomic, strong, readonly) NSString *yy_highlightedDiskCacheKey;
 
 /**
  Set the view's `highlightedImage` with a specified URL.
@@ -211,6 +267,26 @@ NS_ASSUME_NONNULL_BEGIN
  Cancel the current highlighed image request.
  */
 - (void)yy_cancelCurrentHighlightedImageRequest;
+
+/**
+ Remove all cache. both memory cache and disk cache.
+ */
+- (void)yy_removeAllHighlightedCache;
+
+/**
+ Remove memory cache.
+ */
+- (void)yy_removeHighlightedMemoryCache;
+
+/**
+ Remove disk cache.
+ */
+- (void)yy_removeHighlightedDiskCache;
+
+/**
+ Remove cache with specified cache type.
+ */
+- (void)yy_removeHighlightedCache:(YYImageCacheType)cacheType;
 
 @end
 

@@ -13,9 +13,10 @@
 @implementation YYWebImageUtils
 
 + (nullable UIImage *)transformDataToImage:(CGSize)targetSize
-                                  withData:(NSData *)data
+                               targetScale:(CGFloat)targetScale
                                  imageType:(YYImageType)imageType
-                              shouldDecode:(Boolean)shouldDecode {
+                              shouldDecode:(Boolean)shouldDecode
+                                  withData:(NSData *)data {
     CGFloat maxPixelSize = MAX(targetSize.width, targetSize.height);
     if (maxPixelSize <= 0) {
         maxPixelSize = 99999999;// a big value, can not set to CGFLOAT_MAX.
@@ -44,7 +45,11 @@
             CFRelease(source);
             return nil;
         }
-        UIImage *decodedImage = [UIImage imageWithCGImage:decoded];
+        CGFloat scale = targetScale;
+        if (scale <= 0) {
+            scale = [[UIScreen mainScreen] scale];
+        }
+        UIImage *decodedImage = [UIImage imageWithCGImage:decoded scale:scale orientation:UIImageOrientationUp];
         CFRelease(source);
         CFRelease(decoded);
         

@@ -31,6 +31,26 @@ static int _YYWebImageHighlightedSetterKey;
     return setter.imageURL;
 }
 
+- (NSString *)yy_memoryCacheKey {
+    _YYWebImageSetter *setter = objc_getAssociatedObject(self, &_YYWebImageSetterKey);
+    YYWebImageItemOption *itemOption = setter.itemOption;
+    if (itemOption && setter.imageURL) {
+        NSString *cacheKey = setter.imageURL.absoluteString;
+        return [itemOption cacheKeyForMemoryCache:cacheKey];
+    }
+    return nil;
+}
+
+- (NSString *)yy_diskCacheKey {
+    _YYWebImageSetter *setter = objc_getAssociatedObject(self, &_YYWebImageSetterKey);
+    YYWebImageItemOption *itemOption = setter.itemOption;
+    if (itemOption && setter.imageURL) {
+        NSString *cacheKey = setter.imageURL.absoluteString;
+        return [itemOption cacheKeyForDiskCache:cacheKey];
+    }
+    return nil;
+}
+
 - (void)setYy_imageURL:(NSURL *)imageURL {
     [self yy_setImageWithURL:imageURL
                  placeholder:nil
@@ -40,6 +60,15 @@ static int _YYWebImageHighlightedSetterKey;
                     progress:nil
                    transform:nil
                   completion:nil];
+}
+
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+               placeholder:(UIImage *)placeholder {
+    YYWebImageItemOption *itemOption = [[YYWebImageItemOption alloc] init];
+    itemOption.targetSize = [self frame].size;
+    [self yy_setImageWithURL:imageURL
+                 placeholder:placeholder
+                  itemOption:itemOption];
 }
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
@@ -53,6 +82,15 @@ static int _YYWebImageHighlightedSetterKey;
                     progress:nil
                    transform:nil
                   completion:nil];
+}
+
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+                   options:(YYWebImageOptions)options {
+    YYWebImageItemOption *itemOption = [[YYWebImageItemOption alloc] init];
+    itemOption.targetSize = [self frame].size;
+    [self yy_setImageWithURL:imageURL
+                     options:options
+                  itemOption:itemOption];
 }
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
@@ -138,6 +176,8 @@ static int _YYWebImageHighlightedSetterKey;
             _itemOption = [[YYWebImageItemOption alloc] init];
         }
         
+        [setter setItemOption:_itemOption];
+        
         // get the image from memory as quickly as possible
         UIImage *imageFromMemory = nil;
         if (manager.cache &&
@@ -155,14 +195,18 @@ static int _YYWebImageHighlightedSetterKey;
             
             NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
             
+            if (manager.processor) {
+                _itemOption.processorIdentifier = manager.processor.identifier;
+            }
+            
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
-            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
             imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             
             // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!imageFromMemory) {
                 _itemOption.beProcessed = NO;
-                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
                 imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             }
             
@@ -185,6 +229,9 @@ static int _YYWebImageHighlightedSetterKey;
         if (!(options & YYWebImageOptionIgnorePlaceHolder)) {
             self.image = placeholder;
         }
+        
+        _itemOption.beProcessed = NO;
+        _itemOption.beTransformed = NO;
         
         __weak typeof(self) _self = self;
         dispatch_async([_YYWebImageSetter setterQueue], ^{
@@ -234,12 +281,60 @@ static int _YYWebImageHighlightedSetterKey;
     if (setter) [setter cancel];
 }
 
+- (void)yy_removeAllCache {
+    [self yy_removeMemoryCache];
+    [self yy_removeDiskCache];
+}
+
+- (void)yy_removeMemoryCache {
+    [self yy_removeCache:YYImageCacheTypeMemory];
+}
+
+- (void)yy_removeDiskCache {
+    [self yy_removeCache:YYImageCacheTypeDisk];
+}
+
+- (void)yy_removeCache:(YYImageCacheType)cacheType {
+    if (cacheType & YYImageCacheTypeMemory) {
+        NSString *memoryCacheKey = self.yy_memoryCacheKey;
+        if (YYWebImageManager.sharedManager.cache && memoryCacheKey) {
+            [YYWebImageManager.sharedManager.cache removeImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
+        }
+    }
+    
+    if (cacheType & YYImageCacheTypeDisk) {
+        NSString *diskCacheKey = self.yy_diskCacheKey;
+        if (YYWebImageManager.sharedManager.cache && diskCacheKey) {
+            [YYWebImageManager.sharedManager.cache removeImageForKey:diskCacheKey withType:YYImageCacheTypeDisk];
+        }
+    }
+}
 
 #pragma mark - highlighted image
 
 - (NSURL *)yy_highlightedImageURL {
     _YYWebImageSetter *setter = objc_getAssociatedObject(self, &_YYWebImageHighlightedSetterKey);
     return setter.imageURL;
+}
+
+- (NSString *)yy_highlightedMemoryCacheKey {
+    _YYWebImageSetter *setter = objc_getAssociatedObject(self, &_YYWebImageHighlightedSetterKey);
+    YYWebImageItemOption *itemOption = setter.itemOption;
+    if (itemOption && setter.imageURL) {
+        NSString *cacheKey = setter.imageURL.absoluteString;
+        return [itemOption cacheKeyForMemoryCache:cacheKey];
+    }
+    return nil;
+}
+
+- (NSString *)yy_highlightedDiskCacheKey {
+    _YYWebImageSetter *setter = objc_getAssociatedObject(self, &_YYWebImageHighlightedSetterKey);
+    YYWebImageItemOption *itemOption = setter.itemOption;
+    if (itemOption && setter.imageURL) {
+        NSString *cacheKey = setter.imageURL.absoluteString;
+        return [itemOption cacheKeyForDiskCache:cacheKey];
+    }
+    return nil;
 }
 
 - (void)setYy_highlightedImageURL:(NSURL *)imageURL {
@@ -348,6 +443,8 @@ static int _YYWebImageHighlightedSetterKey;
             _itemOption = [[YYWebImageItemOption alloc] init];
         }
         
+        [setter setItemOption:_itemOption];
+        
         // get the image from memory as quickly as possible
         UIImage *imageFromMemory = nil;
         if (manager.cache &&
@@ -365,14 +462,18 @@ static int _YYWebImageHighlightedSetterKey;
             
             NSString *originalCacheKey = [manager cacheKeyForURL:imageURL];
             
+            if (manager.processor) {
+                _itemOption.processorIdentifier = manager.processor.identifier;
+            }
+            
             // try key mode: URL_widthPixel_x_heightPixel_[YYWebImageProcessor`s identifier]_[transform`s identifier]
-            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+            NSString *memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
             imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             
             // try key mode: URL_widthPixel_x_heightPixel_[transform`s identifier]
             if (!imageFromMemory) {
                 _itemOption.beProcessed = NO;
-                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey processorIdentifier:manager.processor.identifier];
+                memoryCacheKey = [_itemOption cacheKeyForMemoryCache:originalCacheKey];
                 imageFromMemory = [manager.cache getImageForKey:memoryCacheKey withType:YYImageCacheTypeMemory];
             }
             
@@ -395,6 +496,9 @@ static int _YYWebImageHighlightedSetterKey;
         if (!(options & YYWebImageOptionIgnorePlaceHolder)) {
             self.highlightedImage = placeholder;
         }
+        
+        _itemOption.beProcessed = NO;
+        _itemOption.beTransformed = NO;
         
         __weak typeof(self) _self = self;
         dispatch_async([_YYWebImageSetter setterQueue], ^{
@@ -442,6 +546,35 @@ static int _YYWebImageHighlightedSetterKey;
 - (void)yy_cancelCurrentHighlightedImageRequest {
     _YYWebImageSetter *setter = objc_getAssociatedObject(self, &_YYWebImageHighlightedSetterKey);
     if (setter) [setter cancel];
+}
+
+- (void)yy_removeAllHighlightedCache {
+    [self yy_removeHighlightedMemoryCache];
+    [self yy_removeHighlightedDiskCache];
+}
+
+- (void)yy_removeHighlightedMemoryCache {
+    [self yy_removeCache:YYImageCacheTypeMemory];
+}
+
+- (void)yy_removeHighlightedDiskCache {
+    [self yy_removeCache:YYImageCacheTypeDisk];
+}
+
+- (void)yy_removeHighlightedCache:(YYImageCacheType)cacheType {
+    if (cacheType & YYImageCacheTypeMemory) {
+        NSString *highlightedMemoryCacheKey = self.yy_highlightedMemoryCacheKey;
+        if (YYWebImageManager.sharedManager.cache && highlightedMemoryCacheKey) {
+            [YYWebImageManager.sharedManager.cache removeImageForKey:highlightedMemoryCacheKey withType:YYImageCacheTypeMemory];
+        }
+    }
+    
+    if (cacheType & YYImageCacheTypeDisk) {
+        NSString *highlightedDiskCacheKey = self.yy_highlightedDiskCacheKey;
+        if (YYWebImageManager.sharedManager.cache && highlightedDiskCacheKey) {
+            [YYWebImageManager.sharedManager.cache removeImageForKey:highlightedDiskCacheKey withType:YYImageCacheTypeDisk];
+        }
+    }
 }
 
 @end

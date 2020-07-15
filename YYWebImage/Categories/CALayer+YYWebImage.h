@@ -38,6 +38,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) NSURL *yy_imageURL;
 
 /**
+ Associate memory cache key.
+ */
+@property (nullable, nonatomic, strong, readonly) NSString *yy_memoryCacheKey;
+
+/**
+ Associate disk cache key.
+ */
+@property (nullable, nonatomic, strong, readonly) NSString *yy_diskCacheKey;
+
+/**
  Set the view's `image` with a specified URL.
  
  @param imageURL    The image url (remote or local file path).
@@ -118,6 +128,26 @@ NS_ASSUME_NONNULL_BEGIN
  Cancel the current image request.
  */
 - (void)yy_cancelCurrentImageRequest;
+
+/**
+ Remove all cache. both memory cache and disk cache.
+ */
+- (void)yy_removeAllCache;
+
+/**
+ Remove memory cache.
+ */
+- (void)yy_removeMemoryCache;
+
+/**
+ Remove disk cache.
+ */
+- (void)yy_removeDiskCache;
+
+/**
+ Remove cache with specified cache type.
+ */
+- (void)yy_removeCache:(YYImageCacheType)cacheType;
 
 @end
 

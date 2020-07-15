@@ -57,9 +57,10 @@
         case YYImageTypePNG:
         case YYImageTypeJPEG: {// TODO is YYImageTypeJPEG2000 ok?
             UIImage *decodedImage = [YYWebImageUtils transformDataToImage:targetSize
-                                                                 withData:data
+                                                              targetScale:targetScale
                                                                 imageType:imageType
-                                                             shouldDecode:shouldDecode];
+                                                             shouldDecode:shouldDecode
+                                                                 withData:data];
             if (decodedImage && shouldDecode) {
                 [decodedImage setYy_isDecodedForDisplay:YES];
             }
