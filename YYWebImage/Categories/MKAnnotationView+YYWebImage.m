@@ -60,6 +60,30 @@ static int _YYWebImageSetterKey;
 }
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
+               placeholder:(UIImage *)placeholder {
+    [self yy_setImageWithURL:imageURL
+                 placeholder:placeholder
+                  targetSize:self.frame.size];
+}
+
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+                   options:(YYWebImageOptions)options {
+    [self yy_setImageWithURL:imageURL
+                     options:options
+                  targetSize:self.frame.size];
+}
+
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+               placeholder:(UIImage *)placeholder
+                targetSize:(CGSize)targetSize {
+    YYWebImageItemOption *itemOption = [YYWebImageItemOption new];
+    itemOption.targetSize = targetSize;
+    [self yy_setImageWithURL:imageURL
+                 placeholder:placeholder
+                  itemOption:itemOption];
+}
+
+- (void)yy_setImageWithURL:(NSURL *)imageURL
                placeholder:(UIImage *)placeholder
                 itemOption:(YYWebImageItemOption *)itemOption {
     [self yy_setImageWithURL:imageURL
@@ -70,6 +94,16 @@ static int _YYWebImageSetterKey;
                     progress:nil
                    transform:nil
                   completion:nil];
+}
+
+- (void)yy_setImageWithURL:(NSURL *)imageURL
+                   options:(YYWebImageOptions)options
+                targetSize:(CGSize)targetSize {
+    YYWebImageItemOption *itemOption = [YYWebImageItemOption new];
+    itemOption.targetSize = targetSize;
+    [self yy_setImageWithURL:imageURL
+                     options:options
+                  itemOption:itemOption];
 }
 
 - (void)yy_setImageWithURL:(NSURL *)imageURL
@@ -85,6 +119,32 @@ static int _YYWebImageSetterKey;
                   completion:nil];
 }
 
+- (void)yy_setImageWithURL:(nullable NSURL *)imageURL
+               placeholder:(nullable UIImage *)placeholder
+                   options:(YYWebImageOptions)options
+                completion:(nullable YYWebImageCompletionBlock)completion {
+    
+    [self yy_setImageWithURL:imageURL
+                 placeholder:placeholder
+                     options:options
+                  targetSize:self.frame.size
+                  completion:completion];
+}
+
+- (void)yy_setImageWithURL:(nullable NSURL *)imageURL
+               placeholder:(nullable UIImage *)placeholder
+                   options:(YYWebImageOptions)options
+                targetSize:(CGSize)targetSize
+                completion:(nullable YYWebImageCompletionBlock)completion {
+    YYWebImageItemOption *itemOption = [YYWebImageItemOption new];
+    itemOption.targetSize = targetSize;
+    [self yy_setImageWithURL:imageURL
+                 placeholder:placeholder
+                     options:options
+                  itemOption:itemOption
+                  completion:completion];
+}
+
 - (void)yy_setImageWithURL:(NSURL *)imageURL
                placeholder:(UIImage *)placeholder
                    options:(YYWebImageOptions)options
@@ -97,6 +157,24 @@ static int _YYWebImageSetterKey;
                      manager:nil
                     progress:nil
                    transform:nil
+                  completion:completion];
+}
+
+- (void)yy_setImageWithURL:(nullable NSURL *)imageURL
+               placeholder:(nullable UIImage *)placeholder
+                   options:(YYWebImageOptions)options
+                targetSize:(CGSize)targetSize
+                  progress:(nullable YYWebImageProgressBlock)progress
+                 transform:(nullable YYWebImageTransformBlock)transform
+                completion:(nullable YYWebImageCompletionBlock)completion {
+    YYWebImageItemOption *itemOption = [YYWebImageItemOption new];
+    itemOption.targetSize = targetSize;
+    [self yy_setImageWithURL:imageURL
+                 placeholder:placeholder
+                     options:options
+                  itemOption:itemOption
+                    progress:progress
+                   transform:transform
                   completion:completion];
 }
 
