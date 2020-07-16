@@ -243,6 +243,17 @@ typedef NS_OPTIONS(NSUInteger, YYImageCacheType) {
  */
 - (nullable UIImage *)getImageFromData:(NSData *)data;
 
+/**
+ Returns the image disk file path for the key, generally the key is image`s url.
+ 
+ @discussion If the key is nil will return the disk cache directory path. if the path is nil then will use default YYCache sharedInstance`s cache path.
+ 
+ @param key Generally is the image url.
+ @param path The YYCache disk path.
+ @return The image disk file path for the key.
+ */
+- (NSString *)getImagePathForKey:(nullable NSString *)key cachePath:(nullable NSString *)path;
+
 @end
 
 NS_ASSUME_NONNULL_END

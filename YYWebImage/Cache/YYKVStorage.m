@@ -972,16 +972,6 @@ static UIApplication *_YYSharedApplication() {
     return item;
 }
 
-- (NSString *)getItemPathForKey:(NSString *)key {
-    if (key.length == 0) return nil;
-    YYKVStorageItem *item = [self _dbGetItemWithKey:key excludeInlineData:NO];
-    if (item) {
-        NSString *path = [_dataPath stringByAppendingPathComponent:item.filename];
-        return path;
-    }
-    return nil;
-}
-
 - (YYKVStorageItem *)getItemInfoForKey:(NSString *)key {
     if (key.length == 0) return nil;
     YYKVStorageItem *item = [self _dbGetItemWithKey:key excludeInlineData:YES];

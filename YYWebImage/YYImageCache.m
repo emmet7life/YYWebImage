@@ -12,6 +12,7 @@
 #import "YYImageCache.h"
 #import "YYImage.h"
 #import "UIImage+YYWebImage.h"
+#import <CommonCrypto/CommonCrypto.h>
 
 #if __has_include(<YYImage/YYImage.h>)
 #import <YYImage/YYImage.h>
@@ -33,6 +34,21 @@ static inline dispatch_queue_t YYImageCacheIOQueue() {
 
 static inline dispatch_queue_t YYImageCacheDecodeQueue() {
     return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
+}
+
+/// String's md5 hash.
+static NSString *_YYNSStringMD5(NSString *string) {
+    if (!string) return nil;
+    NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+    unsigned char result[CC_MD5_DIGEST_LENGTH];
+    CC_MD5(data.bytes, (CC_LONG)data.length, result);
+    return [NSString stringWithFormat:
+                @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                result[0],  result[1],  result[2],  result[3],
+                result[4],  result[5],  result[6],  result[7],
+                result[8],  result[9],  result[10], result[11],
+                result[12], result[13], result[14], result[15]
+            ];
 }
 
 
@@ -296,6 +312,31 @@ static inline dispatch_queue_t YYImageCacheDecodeQueue() {
 
 - (UIImage *)getImageFromData:(NSData *)data {
     return [self imageFromData:data];
+}
+
+- (NSString *)getImagePathForKey:(NSString *)key cachePath:(NSString *)path {
+    NSString *_path = path;
+    if (!_path) {
+        // default disk cache path
+        NSString *cachePath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory,
+                                                                   NSUserDomainMask, YES) firstObject];
+        cachePath = [cachePath stringByAppendingPathComponent:@"com.ibireme.yykit"];
+        cachePath = [cachePath stringByAppendingPathComponent:@"images"];
+        cachePath = [cachePath stringByAppendingPathComponent:@"data"];
+        _path = cachePath;
+    }
+    
+    if (!key) { return _path; }
+    
+    // generate file name
+    NSString *filename = nil;
+    if (_diskCache.customFileNameBlock) filename = _diskCache.customFileNameBlock(key);
+    if (!filename) filename = _YYNSStringMD5(key);
+    if (!filename) { return _path; }
+    
+    // final image cache file path
+    _path = [_path stringByAppendingPathComponent:filename];
+    return _path;
 }
 
 @end
